@@ -12,7 +12,7 @@ CREATE TYPE meeting_type AS ENUM ('syndicate', 'academic');
 
 CREATE TYPE meeting_status AS ENUM ('locked', 'open', 'end');
 
-CREATE TYPE content_type AS ENUM ('agendaItem', 'minor', 'resolution');
+CREATE TYPE annexure_type AS ENUM ('agendaItem', 'resolution');
 
 CREATE TYPE execution_bool AS ENUM ('yes', 'no');
 
@@ -20,7 +20,9 @@ CREATE TYPE member_status AS ENUM ('active', 'onleave', 'past');
 
 CREATE TYPE template_visibility AS ENUM ('public', 'private');
 
-CREATE TYPE template_type AS ENUM ('agendaItem', 'resolutionItem', 'minor');
+CREATE TYPE template_type AS ENUM ('agendaItem', 'resolutionItem');
+
+CREATE TYPE content_type AS ENUM ('agendaItem', 'resolutionItem');
 
 CREATE TYPE presentee_status AS ENUM ('yes', 'no');
 
@@ -32,6 +34,7 @@ CREATE TYPE account_status AS ENUM ('active', 'inactive');
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
     username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) UNIQUE,
     password VARCHAR(255) NOT NULL, -- Store hashed passwords only
     role user_role NOT NULL DEFAULT 'member',
     member_type member_type_enum NOT NULL DEFAULT 'none',
@@ -59,7 +62,9 @@ CREATE TABLE syndicate_members (
 CREATE TABLE academic_members (
     member_id UUID PRIMARY KEY REFERENCES members (id) ON DELETE CASCADE,
     designation VARCHAR(255),
-    department VARCHAR(255)
+    faculty VARCHAR(255),
+    department VARCHAR(255),
+    seniority_order INT
 );
 
 -- Meetings Table
@@ -71,29 +76,22 @@ CREATE TABLE meetings (
     meeting_link TEXT,
     agenda_pdf_link TEXT,
     resolution_pdf_link TEXT,
-    minors_pdf_link TEXT,
     status meeting_status NOT NULL DEFAULT 'open',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Content Table (Stores the core text data and embeddings)
-CREATE TABLE content (
+CREATE TABLE agenda (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    type content_type NOT NULL,
     -- 'vector(1536)' is standard for OpenAI embeddings. 
     -- Change 1536 to your specific model's dimension if different.
     embedding vector (1536),
-    content_serial VARCHAR(50), -- e.g., "Ag-1", "Res-5"
-    meeting_id UUID REFERENCES meetings (id) ON DELETE CASCADE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Resolutions Table (Links specifically to content that are resolutions)
-CREATE TABLE resolutions (
-    content_id UUID PRIMARY KEY REFERENCES content (id) ON DELETE CASCADE,
+    decision TEXT,
     is_executed execution_bool DEFAULT 'no',
     execution_status TEXT, -- Detailed status description
-    decision TEXT
+    agenda_serial VARCHAR(50), -- e.g., "Ag-1", "Res-5"
+    meeting_id UUID REFERENCES meetings (id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Templates Table
@@ -121,6 +119,7 @@ CREATE TABLE revisions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
     text_content TEXT NOT NULL,
     content_id UUID REFERENCES content (id) ON DELETE CASCADE,
+    content_type content_type,
     modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     modified_by UUID REFERENCES users (id) ON DELETE SET NULL
 );
@@ -129,8 +128,10 @@ CREATE TABLE revisions (
 CREATE TABLE annexures (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
     content_id UUID REFERENCES content (id) ON DELETE CASCADE,
-    pdf_link TEXT,
+    annexure_type annexure_type,
+    file_name VARCHAR(255),
+    file_path TEXT,
     summary TEXT,
     embedding vector (1536), -- Vector embedding for the annexure summary/content
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    upload_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
