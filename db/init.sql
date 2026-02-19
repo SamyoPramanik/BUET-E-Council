@@ -55,7 +55,7 @@ CREATE TABLE members (
 CREATE TABLE syndicate_members (
     member_id UUID PRIMARY KEY REFERENCES members (id) ON DELETE CASCADE,
     designation VARCHAR(255),
-    address TEXT
+    address VARCHAR(255)
 );
 
 -- Academic Members (Extension of members)
@@ -64,7 +64,7 @@ CREATE TABLE academic_members (
     designation VARCHAR(255),
     faculty VARCHAR(255),
     department VARCHAR(255),
-    seniority_order INT
+    seniority_order INTEGER
 );
 
 -- Meetings Table
@@ -73,9 +73,10 @@ CREATE TABLE meetings (
     title VARCHAR(255) NOT NULL,
     meeting_date TIMESTAMP WITH TIME ZONE NOT NULL,
     type meeting_type NOT NULL,
-    meeting_link TEXT,
-    agenda_pdf_link TEXT,
-    resolution_pdf_link TEXT,
+    meeting_link VARCHAR(255),
+    agenda_pdf_link VARCHAR(255),
+    transcript VARCHAR(255),
+    resolution_pdf_link VARCHAR(255),
     status meeting_status NOT NULL DEFAULT 'open',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -89,7 +90,7 @@ CREATE TABLE agenda (
     decision TEXT,
     is_executed execution_bool DEFAULT 'no',
     execution_status TEXT, -- Detailed status description
-    agenda_serial VARCHAR(50), -- e.g., "Ag-1", "Res-5"
+    agenda_serial INTEGER, -- e.g., "Ag-1", "Res-5"
     meeting_id UUID REFERENCES meetings (id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -118,7 +119,7 @@ CREATE TABLE presentees (
 CREATE TABLE revisions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
     text_content TEXT NOT NULL,
-    content_id UUID REFERENCES content (id) ON DELETE CASCADE,
+    content_id UUID REFERENCES agenda (id) ON DELETE CASCADE,
     content_type content_type,
     modified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     modified_by UUID REFERENCES users (id) ON DELETE SET NULL
@@ -127,11 +128,25 @@ CREATE TABLE revisions (
 -- Annexures Table (Attachments/Appendices)
 CREATE TABLE annexures (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
-    content_id UUID REFERENCES content (id) ON DELETE CASCADE,
+    content_id UUID REFERENCES agenda (id) ON DELETE CASCADE,
     annexure_type annexure_type,
     file_name VARCHAR(255),
-    file_path TEXT,
+    file_path VARCHAR(255),
     summary TEXT,
     embedding vector (1536), -- Vector embedding for the annexure summary/content
     upload_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tags (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    name VARCHAR(255) NOT NULL,
+    embedding vector (1536),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE content_tags (
+    content_id UUID REFERENCES agenda (id) ON DELETE CASCADE,
+    tag_id UUID REFERENCES tags (id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (content_id, tag_id)
 );
