@@ -4,14 +4,25 @@ services:
     container_name: buet_ecouncil_db
     restart: always
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secretpassword
-      POSTGRES_DB: buet_ecouncil
+      POSTGRES_USER: 'admin'
+      POSTGRES_PASSWORD: 'secretpassword'
+      POSTGRES_DB: 'buet_ecouncil'
     ports:
       - "5432:5432"
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
 
+  auth_service:
+    build: ./auth_service
+    container_name: buet_ecouncil_auth_service
+    restart: always
+    environment:
+      DATABASE_URL: postgres://admin:secretpassword@db:5432/buet_ecouncil
+      NODE_ENV: production
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
 volumes:
   postgres_data:
