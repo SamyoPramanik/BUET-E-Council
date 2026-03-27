@@ -40,7 +40,6 @@ MANIFEST
 venv/
 ENV/
 env/
-.env
 .env.development
 .env.production
 .python-version

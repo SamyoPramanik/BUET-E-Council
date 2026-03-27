@@ -4,8 +4,41 @@ import { useToast } from 'vue-toastification'
 import SignInView from '../views/SignInView.vue'
 import VerificationView from '../views/VerificationView.vue'
 
+import MainLayout from '../layouts/MainLayout.vue'
+
 const routes = [
+  // ── Auth routes (no shell) ──────────────────────────
+
+  // ── Shell routes (wrapped in MainLayout) ────────────
   {
+    path: '/',
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        redirect: '/profile'
+      },
+      {
+        path: 'profile',
+        name: 'profile',
+        component: () => import('../views/ProfileView.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'meetings',
+        name: 'Meetings',
+        component: () => import('../views/MeetingsView.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'admin-panel',
+        name: 'AdminPanel',
+        meta: { requiresAuth: true, requiresAdmin: true },
+        beforeEnter: () => {
+          window.location.href = 'http://localhost:8000/admin/'
+        }
+      },
+      {
     path: '/sign-in',
     name: 'SignIn',
     component: SignInView,
@@ -17,42 +50,20 @@ const routes = [
     component: VerificationView,
     meta: { guestOnly: true },
     beforeEnter: (to, from, next) => {
-      const email = localStorage.getItem('pending_email');
-      if (!email) next({ name: 'SignIn' });
-      else next();
+      const email = localStorage.getItem('pending_email')
+      if (!email) next({ name: 'SignIn' }); else next()
     }
   },
-  {
-    path: '/',
-    name: 'Index',
-    redirect: '/profile' // Clearer than logic in guards
-  },
-  {
-    path: '/profile',
-    name: 'profile',
-    component: () => import('../views/ProfileView.vue'),
-    meta: { requiresAuth: true } 
-  },
-  {
-    path: '/meetings',
-    name: 'Meetings',
-    component: () => import('../views/MeetingsView.vue'),
-    meta: { requiresAuth: true }
-  },
+
+  // ── Full-screen routes (no shell) ───────────────────
   {
     path: '/meetings/:id',
     name: 'MeetingDetails',
     component: () => import('../views/MeetingDetailsView.vue'),
-    props: true, // Pass :id as a prop to the component
+    props: true,
     meta: { requiresAuth: true }
   },
-  {
-    path: '/admin-panel',
-    name: 'AdminPanel',
-    meta: { requiresAuth: true, requiresAdmin: true },
-    beforeEnter: () => {
-      window.location.href = 'http://localhost:8000/admin/';
-    }
+    ]
   }
 ]
 

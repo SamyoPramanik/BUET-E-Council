@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
-from .api import auth, users, meetings
+from .api import auth, users, meetings, participants, agendas, resolutions, files
 
 from .database import init_db, engine
 from .admin import setup_admin
@@ -38,6 +38,10 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(meetings.router)
+app.include_router(participants.router)
+app.include_router(agendas.router)
+app.include_router(resolutions.router)
+app.include_router(files.router)
 
 # Mount the Admin Interface
 setup_admin(app, engine)
