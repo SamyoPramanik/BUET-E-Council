@@ -159,6 +159,12 @@ class UploadedFile(SQLModel, table=True):
     resolution_attachments: List["ResolutionAttachment"] = Relationship(back_populates="file")
 
 
+class MeetingSignatureLink(SQLModel, table=True):
+    """Many-to-many join: Meeting ↔ SignatureCard, with display order."""
+    meeting_id:        uuid_pkg.UUID = Field(foreign_key="meeting.id",       primary_key=True)
+    signature_card_id: uuid_pkg.UUID = Field(foreign_key="signaturecard.id", primary_key=True)
+    order:             int           = Field(default=1, nullable=False)
+    
 # ════════════════════════════════════════════════════════════════════════════
 # MEETINGS
 # ════════════════════════════════════════════════════════════════════════════
@@ -191,6 +197,12 @@ class Meeting(SQLModel, table=True):
         link_model=MeetingParticipantLink,
     )
     agendas: List["Agendum"] = Relationship(back_populates="meeting")
+
+        # ← NEW
+    signature_cards: List["SignatureCard"] = Relationship(
+        back_populates="meetings",
+        link_model=MeetingSignatureLink,
+    )
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -293,3 +305,28 @@ class ResolutionAttachment(SQLModel, table=True):
     __table_args__ = (
         sa.UniqueConstraint("resolution_id", "file_id", name="uq_resolution_file"),
     )
+
+class SignatureCard(SQLModel, table=True):
+    """
+    A signature block that appears at the bottom of meeting minutes.
+ 
+    `content` is the multi-line label displayed beneath the signature line,
+    e.g.:
+        "(অধ্যাপক ডঃ সত্য প্রসাদ মজুমদার)\\nউপাচার্য\\nও\\nএকাডেমিক কাউন্সিলের সভাপতি"
+ 
+    One SignatureCard can be reused across many meetings (many-to-many).
+    """
+    id: uuid_pkg.UUID = Field(
+        default_factory=uuid_pkg.uuid4,
+        primary_key=True, index=True, nullable=False,
+    )
+    content:    str      = Field(nullable=False, index=True)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc), nullable=False
+    )
+ 
+    meetings: List["Meeting"] = Relationship(
+        back_populates="signature_cards",
+        link_model=MeetingSignatureLink,
+    )
+ 

@@ -234,7 +234,7 @@ def create_agendum(
     Create a blank agenda item under a meeting.
 
     201 — created
-    400 — duplicate serial within the same meeting
+    400 — duplicate serial within the same meeting + is_supplementary group
     403 — viewer attempting to write
     404 — meeting not found
     """
@@ -243,17 +243,21 @@ def create_agendum(
     if not session.get(Meeting, data.meeting_id):
         raise HTTPException(status_code=404, detail="Meeting not found.")
 
-    # check serial uniqueness within meeting
+    # Uniqueness is scoped to (meeting_id, serial, is_supplementary).
+    # Serial 1 in regular agendas and serial 1 in supplementary agendas are
+    # two different items and must both be allowed.
     existing = session.exec(
         select(Agendum).where(
-            Agendum.meeting_id == data.meeting_id,
-            Agendum.serial == data.serial,
+            Agendum.meeting_id      == data.meeting_id,
+            Agendum.serial          == data.serial,
+            Agendum.is_supplementary == data.is_supplementary,
         )
     ).first()
     if existing:
+        kind = "supplementary" if data.is_supplementary else "regular"
         raise HTTPException(
             status_code=400,
-            detail=f"Serial #{data.serial} already exists in this meeting.",
+            detail=f"Serial #{data.serial} already exists in {kind} agendas for this meeting.",
         )
 
     ag = Agendum(
@@ -297,18 +301,21 @@ def update_agendum(
         )
 
     # if serial is changing, check uniqueness within the meeting
+    # Inside update_agendum, replace the conflict check with:
     if "serial" in updates and updates["serial"] != ag.serial:
         conflict = session.exec(
             select(Agendum).where(
-                Agendum.meeting_id == ag.meeting_id,
-                Agendum.serial == updates["serial"],
-                Agendum.id != ag.id,
+                Agendum.meeting_id       == ag.meeting_id,
+                Agendum.serial           == updates["serial"],
+                Agendum.is_supplementary == ag.is_supplementary,  # ← add this
+                Agendum.id               != ag.id,
             )
         ).first()
         if conflict:
+            kind = "supplementary" if ag.is_supplementary else "regular"
             raise HTTPException(
                 status_code=400,
-                detail=f"Serial #{updates['serial']} already exists in this meeting.",
+                detail=f"Serial #{updates['serial']} already exists in {kind} agendas for this meeting.",
             )
 
     for k, v in updates.items():

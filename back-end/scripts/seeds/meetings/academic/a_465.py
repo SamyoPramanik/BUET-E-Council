@@ -1,6 +1,95 @@
 from datetime import datetime, timezone
-from app.models import Meeting, ParticipantCard, MeetingParticipantLink
-from sqlmodel import Session
+from app.models import Meeting, ParticipantCard, SignatureCard
+from sqlmodel import Session, select
+
+import json
+from datetime import datetime, timezone
+ 
+from sqlmodel import Session, select
+ 
+from app.models import Agendum, Meeting, ParticipantCard, Resolution, SignatureCard
+ 
+ 
+# ════════════════════════════════════════════════════════════════════════════
+# Tiptap JSON helpers
+# ════════════════════════════════════════════════════════════════════════════
+ 
+def _text(content: str, **marks) -> dict:
+    node: dict = {"type": "text", "text": content}
+    if marks:
+        node["marks"] = [{"type": k} for k, v in marks.items() if v]
+    return node
+ 
+ 
+def _paragraph(*inline_nodes) -> dict:
+    return {
+        "type": "paragraph",
+        "content": list(inline_nodes),
+    }
+ 
+ 
+def _ordered_list(items: list[str]) -> dict:
+    """Numbered list — each item is a plain-text paragraph inside a listItem."""
+    return {
+        "type": "orderedList",
+        "attrs": {"start": 1},
+        "content": [
+            {
+                "type": "listItem",
+                "content": [_paragraph(_text(item))],
+            }
+            for item in items
+        ],
+    }
+ 
+ 
+def _doc(*nodes: dict) -> str:
+    """Serialise a Tiptap document to a JSON string (stored in Agendum.body)."""
+    return json.dumps(
+        {"type": "doc", "content": list(nodes)},
+        ensure_ascii=False,
+        separators=(",", ":"),   # compact — no extra whitespace
+    )
+
+# ════════════════════════════════════════════════════════════════════════════
+# Body content  (module-level constants so they are built once)
+# ════════════════════════════════════════════════════════════════════════════
+ 
+# Agenda body — প্রস্তাব নং এ ২১০৮০১
+AGENDUM_BODY: str = _doc(
+    _paragraph(
+        _text(
+            "প্রস্তাব নং এ ২১০৮০১ ঃ একাডেমিক ও শিক্ষা কার্যক্রম বিষয়ে উপাচার্য মহোদয় কর্তৃক "
+            "গৃহীত ব্যবস্থাদি অবহিতকরণ ও অনুমোদন এবং স্নাতক ও স্নাতকোত্তর পর্যায়ের পরবর্তী "
+            "শিক্ষা কার্যক্রম সম্পর্কে আলোচনা ও সিদ্ধান্ত গ্রহণ।"
+        )
+    ),
+)
+ 
+# Resolution body — intro + ordered list of decisions ক, খ, গ
+RESOLUTION_BODY: str = _doc(
+    _paragraph(
+        _text(
+            "সিদ্ধান্ত ঃ শিক্ষা কার্যক্রম বিষয়ে পরিশিষ্ট-১ এ প্রদত্ত ডীনস্ কমিটির সুপারিশ এবং "
+            "স্নাতক ও স্নাতকোত্তর শ্রেণীর একাডেমিক ক্যালেন্ডার বিষয়ে পরিশিষ্ট-২ এ প্রদত্ত "
+            "উপাচার্য মহোদয় কর্তৃক গৃহীত ব্যবস্থাদি বিস্তারিত আলোচনার পর নিম্নবর্ণিত "
+            "সিদ্ধান্তসমূহ গৃহীত হয়ঃ"
+        )
+    ),
+    _ordered_list([
+        # ক
+        "আগামী ২২-০৫-২০২১ তারিখ হতে স্নাতক ও স্নাতকোত্তর শ্রেণীর অনলাইন শিক্ষা কার্যক্রম "
+        "শুরু করা হবে। তবে ১ম সপ্তাহে স্নাতক শ্রেণীর ক্লাশ টেস্ট, ল্যাব টেস্ট ও কুইজ "
+        "ইত্যাদি গ্রহণ করা হবে না।",
+        # খ
+        "স্নাতক শ্রেণীর জানুয়ারী ২০২১ টার্মের সংশোধিত একাডেমিক ক্যালেন্ডার বিষয়ে উপাচার্য "
+        "মহোদয় কর্তৃক গৃহীত ব্যবস্থা সভা অবহিত হন এবং অনুমোদন করেন।",
+        # গ
+        "স্নাতকোত্তর শ্রেণীর এপ্রিল ২০২০ সেমেস্টারের ক্লাশ শেষের সময়সীমা এক সপ্তাহ "
+        "বাড়ানোর সিদ্ধান্ত গৃহীত হয় এবং এতদসংক্রান্ত একাডেমিক ক্যালেন্ডার ডীনস্ "
+        "কমিটির মাধ্যমে সংশোধন করে প্রকাশ করা হবে।",
+    ]),
+)
 
 
 def get_seed_data(session: Session, participant_map: dict):
@@ -217,6 +306,26 @@ def get_seed_data(session: Session, participant_map: dict):
 
     members = [card(c) for c in member_contents]
 
+        # ── Signature Cards ────────────────────────────────────────────────────
+    # Upsert: reuse existing SignatureCard if content matches, else create new.
+    def get_or_create_sig(content: str) -> SignatureCard:
+        existing = session.exec(
+            select(SignatureCard).where(SignatureCard.content == content)
+        ).first()
+        if existing:
+            return existing
+        sig = SignatureCard(content=content)
+        session.add(sig)
+        session.flush()
+        return sig
+ 
+    sig1 = get_or_create_sig(
+        "(অধ্যাপক ডঃ সত্য প্রসাদ মজুমদার)\nউপাচার্য\nও\nএকাডেমিক কাউন্সিলের সভাপতি"
+    )
+    sig2 = get_or_create_sig(
+        "(অধ্যাপক ডঃ মোঃ ফোরকান উদ্দিন)\nরেজিস্ট্রার (অঃ দাঃ)\nও\nএকাডেমিক কাউন্সিলের সচিব"
+    )
+
     meeting = Meeting(
         serial_num=465,
         is_academic=True,
@@ -235,6 +344,28 @@ def get_seed_data(session: Session, participant_map: dict):
         president_card_id=president.id,
         members=members,
         # ────────────────────────────────────────────────────
+        signature_cards=[sig1, sig2],
     )
 
+    session.add(meeting)
+    session.flush()          # ← meeting.id is now assigned
+ 
+    # ── 5. Agendum #1 (regular, serial=1) ─────────────────────────────────
+    agendum = Agendum(
+        meeting_id=meeting.id,
+        serial=1,
+        is_supplementary=False,
+        body=AGENDUM_BODY,   # ← compact Tiptap JSON string
+    )
+    session.add(agendum)
+    session.flush()          # ← agendum.id is now assigned
+ 
+    # ── 6. Resolution for Agendum #1 ──────────────────────────────────────
+    resolution = Resolution(
+        agendum_id=agendum.id,
+        body=RESOLUTION_BODY,  # ← compact Tiptap JSON string
+    )
+    session.add(resolution)
+    # No flush needed — caller commits everything atomically
+ 
     return meeting

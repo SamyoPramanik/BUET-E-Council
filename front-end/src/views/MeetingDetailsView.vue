@@ -9,7 +9,7 @@ import {
   Menu, X, Info, Layout, FileText, CheckCircle,
   Hash, Calendar, Edit3, Save, Users,
   ListOrdered, FileDown, Trash2, Plus, GripVertical,
-  UploadCloud, Download, File as FileIcon
+  UploadCloud, Download, File as FileIcon, PenLine
 } from 'lucide-vue-next'
 import { authState } from '../store/auth'
 import { confirmDestructive } from '../utils/alerts'
@@ -18,6 +18,7 @@ import ParticipantsSection from '../components/ParticipantsSection.vue'
 import ParticipantCard     from '../components/ParticipantCard.vue'
 import AgendaBox           from '../components/AgendaBox.vue'
 import InsertStrip         from '../components/InsertStrip.vue'
+import SignatureCardsSection from '../components/SignatureCardsSection.vue'
 
 const route = useRoute()
 const toast  = useToast()
@@ -60,6 +61,7 @@ const staticSections = [
   { id: 'suppl-agendas', label: 'Supplementary Agendas',    icon: ListOrdered, suppl: true  },
   { id: 'materials',     label: 'Materials',                icon: FileDown,    suppl: false },
   { id: 'conclusion',    label: 'Final Conclusion',         icon: CheckCircle, suppl: false },
+  { id: 'signatures', label: 'Signature Cards', icon: PenLine, suppl: false },
 ]
 
 const setupObservers = () => {
@@ -951,6 +953,16 @@ async function deletePdf(type) {
                 </div>
               </div>
             </div>
+          </section>
+
+                    <!-- ══════════════════════════════════════════════════════════ -->
+          <!-- ── SIGNATURE CARDS ────────────────────────────────────── -->
+          <!-- ══════════════════════════════════════════════════════════ -->
+          <section id="signatures" class="scroll-mt-20">
+            <SignatureCardsSection
+              :meeting-id="route.params.id"
+              :can-modify="canModify"
+            />
           </section>
 
         </div>

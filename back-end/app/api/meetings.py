@@ -22,16 +22,43 @@ from sqlmodel import Session, desc, func, select, col
 
 from app.database import engine, get_session
 from app.dependencies import get_current_user
-from app.models import Agendum, Meeting, Resolution, User, UserRole, UploadedFile
+from app.models import Agendum, Meeting, Resolution, User, UserRole, UploadedFile, SignatureCard, MeetingSignatureLink
 from app.schemas.meetings import (
     MeetingPDFResponse, MeetingSummary,
     MeetingUpdate, PaginatedMeetingResponse,
 )
+from app.schemas.signature_cards import *
+
 from app.api.files import upload_file, delete_file
 
 router = APIRouter(prefix="/meetings", tags=["Meetings"])
 
 MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", "media"))
+
+def _get_card_or_404(card_id: uuid_pkg.UUID, session: Session) -> SignatureCard:
+    card = session.get(SignatureCard, card_id)
+    if not card:
+        raise HTTPException(status_code=404, detail="Signature card not found.")
+    return card
+
+
+def _get_link_or_404(
+    meeting_id: uuid_pkg.UUID,
+    sig_id:     uuid_pkg.UUID,
+    session:    Session,
+) -> MeetingSignatureLink:
+    link = session.exec(
+        select(MeetingSignatureLink).where(
+            MeetingSignatureLink.meeting_id        == meeting_id,
+            MeetingSignatureLink.signature_card_id == sig_id,
+        )
+    ).first()
+    if not link:
+        raise HTTPException(
+            status_code=404,
+            detail="Signature card is not attached to this meeting.",
+        )
+    return link
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -398,3 +425,184 @@ def delete_resolution_pdf(
         agenda_pdf=meeting.agenda_pdf,
         resolution_pdf=None,
     )
+
+# ════════════════════════════════════════════════════════════════════════════
+# PER-MEETING ASSIGNMENT
+# ════════════════════════════════════════════════════════════════════════════
+
+@router.get(
+    "/{meeting_id}/signature-cards",
+    response_model=list[SignatureCardResponse],
+)
+def get_meeting_signature_cards(
+    meeting_id:   uuid_pkg.UUID,
+    session:      Session = Depends(get_session),
+    current_user: User    = Depends(get_current_user),
+):
+    """
+    Return all signature cards attached to a meeting, ordered by `order` asc.
+
+    200 — list (may be empty)
+    404 — meeting not found
+    """
+    _get_meeting_or_404(meeting_id, session)
+
+    rows = session.exec(
+        select(SignatureCard, MeetingSignatureLink)
+        .join(
+            MeetingSignatureLink,
+            col(MeetingSignatureLink.signature_card_id) == SignatureCard.id,
+        )
+        .where(MeetingSignatureLink.meeting_id == meeting_id)
+        .order_by(col(MeetingSignatureLink.order))
+    ).all()
+
+    return [SignatureCardResponse.model_validate(card) for card, _ in rows]
+
+
+@router.post(
+    "/{meeting_id}/signature-cards",
+    response_model=list[SignatureCardResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+def add_signature_card_to_meeting(
+    meeting_id:   uuid_pkg.UUID,
+    data:         MeetingSignatureAdd,
+    session:      Session = Depends(get_session),
+    current_user: User    = Depends(get_current_user),
+):
+    """
+    Attach an existing signature card to a meeting.
+
+    201 — attached, returns updated ordered list
+    400 — card already attached to this meeting
+    403 — viewer
+    404 — meeting or card not found
+    """
+    _require_modifier(current_user)
+    _get_meeting_or_404(meeting_id, session)
+    _get_card_or_404(data.signature_card_id, session)
+
+    existing_link = session.exec(
+        select(MeetingSignatureLink).where(
+            MeetingSignatureLink.meeting_id        == meeting_id,
+            MeetingSignatureLink.signature_card_id == data.signature_card_id,
+        )
+    ).first()
+    if existing_link:
+        raise HTTPException(
+            status_code=400,
+            detail="This signature card is already attached to the meeting.",
+        )
+
+    link = MeetingSignatureLink(
+        meeting_id=meeting_id,
+        signature_card_id=data.signature_card_id,
+        order=data.order,
+    )
+    session.add(link)
+    session.commit()
+
+    # Return the updated ordered list
+    return _fetch_ordered_cards(meeting_id, session)
+
+
+@router.patch(
+    "/{meeting_id}/signature-cards/{sig_id}",
+    response_model=list[SignatureCardResponse],
+)
+def reorder_meeting_signature_card(
+    meeting_id:   uuid_pkg.UUID,
+    sig_id:       uuid_pkg.UUID,
+    data:         MeetingSignatureReorder,
+    session:      Session = Depends(get_session),
+    current_user: User    = Depends(get_current_user),
+):
+    """
+    Change the display order of one signature card within a meeting.
+
+    200 — updated, returns updated ordered list
+    403 — viewer
+    404 — meeting or link not found
+    """
+    _require_modifier(current_user)
+    _get_meeting_or_404(meeting_id, session)
+    link = _get_link_or_404(meeting_id, sig_id, session)
+
+    link.order = data.order
+    session.add(link)
+    session.commit()
+
+    return _fetch_ordered_cards(meeting_id, session)
+
+
+@router.delete(
+    "/{meeting_id}/signature-cards/{sig_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def remove_signature_card_from_meeting(
+    meeting_id:   uuid_pkg.UUID,
+    sig_id:       uuid_pkg.UUID,
+    session:      Session = Depends(get_session),
+    current_user: User    = Depends(get_current_user),
+):
+    """
+    Detach one signature card from a meeting (card is NOT deleted globally).
+
+    204 — detached
+    403 — viewer
+    404 — meeting or link not found
+    """
+    _require_modifier(current_user)
+    _get_meeting_or_404(meeting_id, session)
+    link = _get_link_or_404(meeting_id, sig_id, session)
+
+    session.delete(link)
+    session.commit()
+
+
+@router.delete(
+    "/{meeting_id}/signature-cards",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def remove_all_signature_cards_from_meeting(
+    meeting_id:   uuid_pkg.UUID,
+    session:      Session = Depends(get_session),
+    current_user: User    = Depends(get_current_user),
+):
+    """
+    Detach ALL signature cards from a meeting (cards are NOT deleted globally).
+
+    204 — cleared (idempotent)
+    403 — viewer
+    404 — meeting not found
+    """
+    _require_modifier(current_user)
+    _get_meeting_or_404(meeting_id, session)
+
+    links = session.exec(
+        select(MeetingSignatureLink).where(
+            MeetingSignatureLink.meeting_id == meeting_id
+        )
+    ).all()
+    for link in links:
+        session.delete(link)
+    session.commit()
+
+
+# ── private helper ────────────────────────────────────────────────────────────
+
+def _fetch_ordered_cards(
+    meeting_id: uuid_pkg.UUID,
+    session: Session,
+) -> list[SignatureCardResponse]:
+    rows = session.exec(
+        select(SignatureCard, MeetingSignatureLink)
+        .join(
+            MeetingSignatureLink,
+            col(MeetingSignatureLink.signature_card_id) == SignatureCard.id,
+        )
+        .where(MeetingSignatureLink.meeting_id == meeting_id)
+        .order_by(col(MeetingSignatureLink.order))
+    ).all()
+    return [SignatureCardResponse.model_validate(card) for card, _ in rows]
