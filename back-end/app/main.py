@@ -29,6 +29,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,            # Allows your React/Vue app
+    allow_origin_regex=r"https://.*\.github\.dev",
     allow_credentials=True,           # REQUIRED for cookies/session_id
     allow_methods=["*"],              # Allows GET, POST, DELETE, etc.
     allow_headers=["*"],              # Allows Custom Headers (like Session-ID)

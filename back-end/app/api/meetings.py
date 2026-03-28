@@ -16,17 +16,18 @@ import uuid as uuid_pkg
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, UploadFile, File
 from fastapi.responses import FileResponse
 from sqlmodel import Session, desc, func, select, col
 
 from app.database import engine, get_session
 from app.dependencies import get_current_user
-from app.models import Agendum, Meeting, Resolution, User, UserRole
+from app.models import Agendum, Meeting, Resolution, User, UserRole, UploadedFile
 from app.schemas.meetings import (
     MeetingPDFResponse, MeetingSummary,
     MeetingUpdate, PaginatedMeetingResponse,
 )
+from app.api.files import upload_file, delete_file
 
 router = APIRouter(prefix="/meetings", tags=["Meetings"])
 
@@ -200,78 +201,103 @@ def update_meeting_participants(
     return meeting
 
 
+"""
+Paste these endpoints into api/meetings.py, replacing the old
+GET/DELETE /pdf/agenda and /pdf/resolution blocks.
+
+Also update models.py Meeting fields:
+    agenda_pdf:     Optional[uuid_pkg.UUID] = Field(default=None, nullable=True)
+    resolution_pdf: Optional[uuid_pkg.UUID] = Field(default=None, nullable=True)
+
+And add these imports at the top of meetings.py:
+    from fastapi import UploadFile, File
+    from app.api.files import upload_file, delete_file
+    from app.models import UploadedFile
+"""
+
 # ════════════════════════════════════════════════════════════════════════════
-# PDF — AGENDA
+# AGENDA PDF — UPLOAD + DOWNLOAD + DELETE
 # ════════════════════════════════════════════════════════════════════════════
 
-@router.get("/{meeting_id}/pdf/agenda")
-def download_meeting_agenda_pdf(
-    meeting_id:   uuid_pkg.UUID,
-    session:      Session = Depends(get_session),
-    current_user: User    = Depends(get_current_user),
+@router.post("/{meeting_id}/files/agenda", response_model=MeetingPDFResponse)
+async def upload_agenda_pdf(
+    meeting_id: uuid_pkg.UUID,
+    file: UploadFile = File(...),
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
-    """
-    Generate (once, cached) and stream the full agenda PDF.
-    Covers every agenda item ordered by serial, supplementary items last.
+    """Upload (or replace) Agenda PDF using central file system"""
+    _require_modifier(current_user)
+    meeting = _get_meeting_or_404(meeting_id, session)
 
-    200 — PDF | 404 — meeting not found
-    """
-    meeting  = _get_meeting_or_404(meeting_id, session)
-    pdf_rel  = f"meetings/{meeting_id}/full_agenda.pdf"
-    pdf_path = MEDIA_ROOT / pdf_rel
+    # Optional: delete old file first (replace behavior)
+    if meeting.agenda_pdf:
+        try:
+            delete_file(file_id=meeting.agenda_pdf, session=session, current_user=current_user)
+        except Exception:
+            pass  # old file already gone
 
-    if not pdf_path.exists():
-        agendas = session.exec(
-            select(Agendum)
-            .where(col(Agendum.meeting_id) == meeting_id) # Fix: Define the filter clause
-            .order_by(
-                col(Agendum.is_supplementary), # Fix: Define the first order column
-                col(Agendum.serial)            # Fix: Define the second order column
-            )
-        ).all()
+    # Upload new file
+    uploaded = await upload_file(
+        file=file,
+        session=session,
+        current_user=current_user
+    )
 
-        lines = [
-            f"Meeting #{meeting.serial_num}",
-            f"Title   : {meeting.title}",
-            f"Date    : {meeting.meeting_date}",
-            "",
-            "=" * 60,
-            "A G E N D A",
-            "=" * 60,
-        ]
-        for ag in agendas:
-            prefix = "[Supplementary] " if ag.is_supplementary else ""
-            lines += ["", f"{ag.serial}. {prefix}", ag.body or "(no body yet)"]
+    # Link to meeting
+    meeting.agenda_pdf = uploaded.id
+    session.add(meeting)
+    session.commit()
+    session.refresh(meeting)
 
-        _generate_pdf("\n".join(lines), pdf_path)
-        meeting.agenda_pdf = pdf_rel
-        session.add(meeting)
-        session.commit()
-
-    return FileResponse(
-        path=str(pdf_path),
-        media_type="application/pdf",
-        filename=f"agenda_meeting_{meeting.serial_num}.pdf",
+    return MeetingPDFResponse(
+        meeting_id=meeting.id,
+        agenda_pdf=uploaded.id,
+        resolution_pdf=meeting.resolution_pdf,
     )
 
 
-@router.delete("/{meeting_id}/pdf/agenda", response_model=MeetingPDFResponse)
-def clear_meeting_agenda_pdf(
-    meeting_id:   uuid_pkg.UUID,
-    session:      Session = Depends(get_session),
-    current_user: User    = Depends(get_current_user),
+@router.get("/{meeting_id}/files/agenda")
+async def download_agenda_pdf(
+    meeting_id: uuid_pkg.UUID,
+    session: Session = Depends(get_session),
 ):
-    """
-    Clear cached agenda PDF — next GET will regenerate it.
-    200 — cleared | 403 — viewer | 404 — not found
-    """
+    """Download the uploaded Agenda PDF"""
+    meeting = _get_meeting_or_404(meeting_id, session)
+
+    if not meeting.agenda_pdf:
+        raise HTTPException(status_code=404, detail="No agenda PDF uploaded yet.")
+
+    uploaded_file = session.get(UploadedFile, meeting.agenda_pdf)
+    if not uploaded_file:
+        raise HTTPException(status_code=404, detail="File record not found.")
+
+    file_path = MEDIA_ROOT / uploaded_file.path
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found on disk.")
+
+    return FileResponse(
+        path=str(file_path),
+        media_type=uploaded_file.mime_type or "application/pdf",
+        filename=uploaded_file.original_filename or f"agenda_meeting_{meeting.serial_num}.pdf",
+    )
+
+
+@router.delete("/{meeting_id}/files/agenda", response_model=MeetingPDFResponse)
+def delete_agenda_pdf(
+    meeting_id: uuid_pkg.UUID,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    """Delete Agenda PDF"""
     _require_modifier(current_user)
     meeting = _get_meeting_or_404(meeting_id, session)
 
     if meeting.agenda_pdf:
-        p = MEDIA_ROOT / meeting.agenda_pdf
-        if p.exists():
-            p.unlink()
+        try:
+            delete_file(file_id=meeting.agenda_pdf, session=session, current_user=current_user)
+        except Exception:
+            pass
         meeting.agenda_pdf = None
         session.add(meeting)
         session.commit()
@@ -284,78 +310,85 @@ def clear_meeting_agenda_pdf(
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# PDF — RESOLUTION
+# RESOLUTION PDF — UPLOAD + DOWNLOAD + DELETE
 # ════════════════════════════════════════════════════════════════════════════
 
-@router.get("/{meeting_id}/pdf/resolution")
-def download_meeting_resolution_pdf(
-    meeting_id:   uuid_pkg.UUID,
-    session:      Session = Depends(get_session),
-    current_user: User    = Depends(get_current_user),
+@router.post("/{meeting_id}/files/resolution", response_model=MeetingPDFResponse)
+async def upload_resolution_pdf(
+    meeting_id: uuid_pkg.UUID,
+    file: UploadFile = File(...),
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
-    """
-    Generate (once, cached) and stream the full resolution PDF.
-    Only agendas that have a resolution are included.
-
-    200 — PDF | 404 — meeting not found
-    """
-    meeting  = _get_meeting_or_404(meeting_id, session)
-    pdf_rel  = f"meetings/{meeting_id}/full_resolution.pdf"
-    pdf_path = MEDIA_ROOT / pdf_rel
-
-    if not pdf_path.exists():
-        agendas = session.exec(
-            select(Agendum)
-            .where(Agendum.meeting_id == meeting_id)
-            .order_by(col(Agendum.serial))
-        ).all()
-
-        lines = [
-            f"Meeting #{meeting.serial_num}",
-            f"Title   : {meeting.title}",
-            f"Date    : {meeting.meeting_date}",
-            "",
-            "=" * 60,
-            "R E S O L U T I O N S",
-            "=" * 60,
-        ]
-        for ag in agendas:
-            res = session.exec(
-                select(Resolution).where(Resolution.agendum_id == ag.id)
-            ).first()
-            if not res:
-                continue
-            lines += ["", f"Agendum #{ag.serial}", res.body or "(no resolution body)"]
-
-        _generate_pdf("\n".join(lines), pdf_path)
-        meeting.resolution_pdf = pdf_rel
-        session.add(meeting)
-        session.commit()
-
-    return FileResponse(
-        path=str(pdf_path),
-        media_type="application/pdf",
-        filename=f"resolution_meeting_{meeting.serial_num}.pdf",
-    )
-
-
-@router.delete("/{meeting_id}/pdf/resolution", response_model=MeetingPDFResponse)
-def clear_meeting_resolution_pdf(
-    meeting_id:   uuid_pkg.UUID,
-    session:      Session = Depends(get_session),
-    current_user: User    = Depends(get_current_user),
-):
-    """
-    Clear cached resolution PDF — next GET will regenerate it.
-    200 — cleared | 403 — viewer | 404 — not found
-    """
+    """Upload (or replace) Resolution PDF using central file system"""
     _require_modifier(current_user)
     meeting = _get_meeting_or_404(meeting_id, session)
 
     if meeting.resolution_pdf:
-        p = MEDIA_ROOT / meeting.resolution_pdf
-        if p.exists():
-            p.unlink()
+        try:
+            delete_file(file_id=meeting.resolution_pdf, session=session, current_user=current_user)
+        except Exception:
+            pass
+
+    uploaded = await upload_file(
+        file=file,
+        session=session,
+        current_user=current_user
+    )
+
+    meeting.resolution_pdf = uploaded.id
+    session.add(meeting)
+    session.commit()
+    session.refresh(meeting)
+
+    return MeetingPDFResponse(
+        meeting_id=meeting.id,
+        agenda_pdf=meeting.agenda_pdf,
+        resolution_pdf=uploaded.id,
+    )
+
+
+@router.get("/{meeting_id}/files/resolution")
+async def download_resolution_pdf(
+    meeting_id: uuid_pkg.UUID,
+    session: Session = Depends(get_session),
+):
+    """Download the uploaded Resolution PDF"""
+    meeting = _get_meeting_or_404(meeting_id, session)
+
+    if not meeting.resolution_pdf:
+        raise HTTPException(status_code=404, detail="No resolution PDF uploaded yet.")
+
+    uploaded_file = session.get(UploadedFile, meeting.resolution_pdf)
+    if not uploaded_file:
+        raise HTTPException(status_code=404, detail="File record not found.")
+
+    file_path = MEDIA_ROOT / uploaded_file.path
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found on disk.")
+
+    return FileResponse(
+        path=str(file_path),
+        media_type=uploaded_file.mime_type or "application/pdf",
+        filename=uploaded_file.original_filename or f"resolution_meeting_{meeting.serial_num}.pdf",
+    )
+
+
+@router.delete("/{meeting_id}/files/resolution", response_model=MeetingPDFResponse)
+def delete_resolution_pdf(
+    meeting_id: uuid_pkg.UUID,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    """Delete Resolution PDF"""
+    _require_modifier(current_user)
+    meeting = _get_meeting_or_404(meeting_id, session)
+
+    if meeting.resolution_pdf:
+        try:
+            delete_file(file_id=meeting.resolution_pdf, session=session, current_user=current_user)
+        except Exception:
+            pass
         meeting.resolution_pdf = None
         session.add(meeting)
         session.commit()

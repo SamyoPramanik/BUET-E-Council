@@ -31,7 +31,7 @@ class MeetingUpdate(BaseModel):
 
 
 class MeetingPDFResponse(BaseModel):
-    """Returned after generating or clearing a meeting-level PDF."""
-    meeting_id:     uuid_pkg.UUID
-    agenda_pdf:     Optional[str] = None   # relative path; None when cleared
-    resolution_pdf: Optional[str] = None
+    """Returned after uploading, downloading, or deleting a meeting-level PDF."""
+    meeting_id: uuid_pkg.UUID
+    agenda_pdf: Optional[uuid_pkg.UUID] = None      # Now stores UploadedFile.id (UUID)
+    resolution_pdf: Optional[uuid_pkg.UUID] = None  # Now stores UploadedFile.id (UUID)

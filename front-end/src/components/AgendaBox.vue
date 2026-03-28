@@ -4,10 +4,9 @@
   Props : agendum (AgendumResponse), meetingId, canModify
   Emits : updated(agendum), deleted(agendumId)
 
-  Each card has:
-    • Agenda body   — RichTextEditor, Edit/Save/Cancel
-    • Annexures     — file upload, drag-to-reorder, remove
-    • Resolution    — collapsible, same edit pattern + own file attachments
+  Changes:
+    • Drag grip removed — reordering is done exclusively from the sidebar
+    • Resolution edit/save/cancel toolbar moved to the right (flex justify-end)
 -->
 <template>
   <div class="abox" :class="{ 'abox--suppl': agendum.is_supplementary }">
@@ -15,18 +14,6 @@
     <!-- ══ HEADER ════════════════════════════════════════════════════════ -->
     <div class="abox-header">
       <div class="abox-header-left">
-        <!-- drag grip (used by parent draggable wrapper) -->
-        <span v-if="canModify" class="drag-grip" title="Drag to reorder">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="9"  cy="5"  r="1" fill="currentColor"/>
-            <circle cx="9"  cy="12" r="1" fill="currentColor"/>
-            <circle cx="9"  cy="19" r="1" fill="currentColor"/>
-            <circle cx="15" cy="5"  r="1" fill="currentColor"/>
-            <circle cx="15" cy="12" r="1" fill="currentColor"/>
-            <circle cx="15" cy="19" r="1" fill="currentColor"/>
-          </svg>
-        </span>
-
         <span class="serial-badge">Ag-{{ agendum.serial }}</span>
         <span v-if="agendum.is_supplementary" class="suppl-tag">Supplementary</span>
         <span v-if="agendum.updated_at" class="meta-hint">
@@ -168,12 +155,25 @@
 
       <!-- Resolution body (collapsible) -->
       <div v-if="showResolution && agendum.resolution" class="resolution-body">
-        <!-- edit toolbar -->
+
+        <!-- ── Resolution edit toolbar — RIGHT-aligned ── -->
         <div v-if="canModify" class="res-toolbar">
           <button class="hbtn" @click="editingRes = !editingRes">
+            <svg v-if="!editingRes" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
             {{ editingRes ? 'Cancel' : 'Edit' }}
           </button>
           <button v-if="editingRes" class="hbtn hbtn--primary" @click="saveResolution" :disabled="savingRes">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
             {{ savingRes ? 'Saving…' : 'Save' }}
           </button>
         </div>
@@ -272,16 +272,16 @@ function parseBody(raw) {
 }
 
 // ── edit state ────────────────────────────────────────────────────────────────
-const editingBody = ref(false)
-const editingRes  = ref(false)
-const savingBody  = ref(false)
-const savingRes   = ref(false)
-const creatingRes = ref(false)
+const editingBody    = ref(false)
+const editingRes     = ref(false)
+const savingBody     = ref(false)
+const savingRes      = ref(false)
+const creatingRes    = ref(false)
 const showResolution = ref(false)
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 const MEDIA_ROOT = import.meta.env.VITE_MEDIA_URL || ''
-const fileUrl    = path => `${MEDIA_ROOT}/${path}`
+const fileUrl    = path => `${MEDIA_ROOT}/${path.replace(/^\/+/, '')}`
 
 function fmtBytes(b) {
   if (!b) return ''
@@ -348,7 +348,9 @@ async function uploadAnnexure(evt) {
     })
     toast.success('File attached')
     await refetch()
-  } catch { toast.error('Upload failed') }
+  } catch (e) {
+    toast.error(e.response?.data?.detail ?? 'Upload failed')
+  }
   evt.target.value = ''
 }
 
@@ -363,20 +365,27 @@ async function removeAnnexure(annexureId) {
 }
 
 let annDragFrom = null
-function fileDragStart(type, idx) { if (type === 'ann') annDragFrom = idx; else resDragFrom = idx }
+let resDragFrom = null
+
+function fileDragStart(type, idx) {
+  if (type === 'ann') annDragFrom = idx
+  else resDragFrom = idx
+}
+
 function fileDragOver(type, idx) {
   if (type === 'ann') {
     if (annDragFrom === null || annDragFrom === idx) return
     const arr = [...annOrder.value]
-    const [m]  = arr.splice(annDragFrom, 1); arr.splice(idx, 0, m)
+    const [m] = arr.splice(annDragFrom, 1); arr.splice(idx, 0, m)
     annOrder.value = arr; annDragIdx.value = idx; annDragFrom = idx
   } else {
     if (resDragFrom === null || resDragFrom === idx) return
     const arr = [...resOrder.value]
-    const [m]  = arr.splice(resDragFrom, 1); arr.splice(idx, 0, m)
+    const [m] = arr.splice(resDragFrom, 1); arr.splice(idx, 0, m)
     resOrder.value = arr; resDragIdx.value = idx; resDragFrom = idx
   }
 }
+
 async function fileDragEnd(type) {
   if (type === 'ann') {
     annDragIdx.value = null; annDragFrom = null
@@ -423,7 +432,11 @@ async function saveResolution() {
 }
 
 async function deleteResolution() {
-  const ok = await confirmDestructive('Delete resolution?', 'The resolution and its attachments will be permanently deleted.', 'Delete')
+  const ok = await confirmDestructive(
+    'Delete resolution?',
+    'The resolution and its attachments will be permanently deleted.',
+    'Delete'
+  )
   if (!ok) return
   try {
     await api.delete(`/resolutions/${props.agendum.resolution.id}`)
@@ -437,8 +450,6 @@ const resDragIdx = ref(null)
 const resOrder   = ref([...(props.agendum.resolution?.attachments || [])])
 watch(() => props.agendum.resolution?.attachments, v => { resOrder.value = [...(v || [])] })
 
-let resDragFrom = null
-
 async function uploadResAttachment(evt) {
   const file = evt.target.files?.[0]; if (!file) return
   const fd   = new FormData(); fd.append('file', file)
@@ -450,7 +461,9 @@ async function uploadResAttachment(evt) {
     })
     toast.success('Attachment added')
     await refetch()
-  } catch { toast.error('Upload failed') }
+  } catch (e) {
+    toast.error(e.response?.data?.detail ?? 'Upload failed')
+  }
   evt.target.value = ''
 }
 
@@ -490,11 +503,6 @@ async function removeResAttachment(attachmentId) {
 }
 .abox-header-left  { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
 .abox-header-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-
-.drag-grip {
-  color: #94a3b8; cursor: grab; display: flex; align-items: center; flex-shrink: 0;
-}
-.drag-grip:active { cursor: grabbing; }
 
 .serial-badge {
   font-size: 11px; font-weight: 800; color: #1d4ed8;
@@ -605,6 +613,14 @@ async function removeResAttachment(attachmentId) {
 .chevron--open { transform: rotate(180deg); }
 
 .resolution-body { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
-.res-toolbar { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ── Resolution toolbar — RIGHT aligned ── */
+.res-toolbar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;   /* ← moved to right */
+}
+
 .mt-3 { margin-top: 12px; }
 </style>

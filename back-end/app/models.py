@@ -183,8 +183,8 @@ class Meeting(SQLModel, table=True):
     )
 
     # Cached paths to generated PDFs (relative to MEDIA_ROOT)
-    agenda_pdf:     Optional[str] = Field(default=None, nullable=True)
-    resolution_pdf: Optional[str] = Field(default=None, nullable=True)
+    agenda_pdf: Optional[uuid_pkg.UUID] = Field(default=None, foreign_key="uploadedfile.id", nullable=True)
+    resolution_pdf: Optional[uuid_pkg.UUID] = Field(default=None, foreign_key="uploadedfile.id", nullable=True)
 
     members: List["ParticipantCard"] = Relationship(
         back_populates="meetings",
