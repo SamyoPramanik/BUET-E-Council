@@ -6,7 +6,7 @@ set -e
 echo "⏳ Waiting for database to be ready..."
 
 # We use 'nc' (netcat) to check if the DB port is open
-# Replace 'db' with your database service name from podman-compose
+# Replace 'db' with your database service name from docker compose
 # Replace '5432' with your DB port (5432 for Postgres, 3306 for MariaDB)
 while ! nc -z db 5432; do
   sleep 0.5

@@ -1,10 +1,6 @@
-# --- STAGE 1: The Builder ---
 FROM docker.io/library/node:20-alpine AS build-stage
 
-# 1. Define the argument (must match the name in your .env)
 ARG VITE_API_BASE_URL
-
-# 2. Make it available to the environment during the build process
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 WORKDIR /app
@@ -12,11 +8,8 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
-# 3. Vite will now see the ENV variable when running this command
 RUN npm run build
 
-
-# --- STAGE 2: The Web Server ---
 FROM docker.io/library/nginx:stable-alpine AS production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf

@@ -1,7 +1,7 @@
 import os
 from sqlmodel import create_engine, Session, SQLModel
 
-# We grab the URL from the environment variable we set in podman-compose
+# We grab the URL from the environment variable we set in docker compose
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://admin:buet_admin_pass@db:5432/ecouncil_db")
 
 # The engine is the actual connection pool

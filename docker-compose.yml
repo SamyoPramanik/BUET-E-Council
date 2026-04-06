@@ -1,0 +1,37 @@
+services:
+  db:
+    image: docker.io/ankane/pgvector:latest
+    container_name: ecouncil_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: buet_admin_pass
+      POSTGRES_DB: ecouncil_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    container_name: ecouncil_api
+    environment:
+      PYTHONUNBUFFERED: "1"
+      DATABASE_URL: postgresql://admin:buet_admin_pass@db:5432/ecouncil_db
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+    container_name: ecouncil_ui
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
