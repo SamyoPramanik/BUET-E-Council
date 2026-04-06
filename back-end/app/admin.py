@@ -50,6 +50,15 @@ class AdminAuth(AuthenticationBackend):
         # Since we handle redirects in authenticate, 
         # this part just acts as a fallback.
         return True
+
+    async def logout(self, request: Request) -> bool:
+        # Instead of deleting the session directly here, we redirect to the frontend.
+        # The user can explicitly log out using the frontend UI.
+        raise HTTPException(
+            status_code=status.HTTP_303_SEE_OTHER,
+            detail="Returning to app",
+            headers={"Location": f"{settings.FRONTEND_URL}"}
+        )
     
 # Initialize the backend
 admin_auth = AdminAuth(secret_key="your-very-secret-key")

@@ -99,7 +99,7 @@ const userInitials = computed(() => {
 });
 
 const goToAdmin = () => {
-  window.open('http://localhost:8000/admin/', '_blank', 'noopener,noreferrer');
+  window.open('/admin/', '_blank', 'noopener,noreferrer');
 };
 
 const handleLogout = () => {

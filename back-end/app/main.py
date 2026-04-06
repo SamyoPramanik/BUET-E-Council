@@ -22,7 +22,7 @@ app = FastAPI(title="BUET e-Council API", lifespan=lifespan)
 # 1. Define the "Allowed Origins"
 origins = [
     settings.FRONTEND_URL,  # http://localhost:3000
-    "http://127.0.0.1:3000", # Alternative local address
+    "http://frontend:3000", # Alternative local address
 ]
 
 # 2. Add the Middleware

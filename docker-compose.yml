@@ -25,6 +25,8 @@ services:
     environment:
       PYTHONUNBUFFERED: "1"
       DATABASE_URL: postgresql://admin:buet_admin_pass@db:5432/ecouncil_db
+      SECRET_KEY: your_super_secret_buet_key
+
     ports:
       - "8000:8000"
     depends_on:
@@ -42,7 +44,7 @@ services:
       context: ./front-end
       dockerfile: Dockerfile
       args:
-        VITE_API_BASE_URL: http://localhost:8000
+        VITE_API_BASE_URL: ${BACKEND_URL}/api
         VITE_API_INTERNAL_URL: http://backend:8000
     container_name: ecouncil_ui
     # ports:

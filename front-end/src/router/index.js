@@ -35,34 +35,34 @@ const routes = [
         name: 'AdminPanel',
         meta: { requiresAuth: true, requiresAdmin: true },
         beforeEnter: () => {
-          window.location.href = 'http://localhost:8000/admin/'
+          window.location.href = '/admin/'
         }
       },
       {
-    path: '/sign-in',
-    name: 'SignIn',
-    component: SignInView,
-    meta: { guestOnly: true }
-  },
-  {
-    path: '/verify',
-    name: 'Verify',
-    component: VerificationView,
-    meta: { guestOnly: true },
-    beforeEnter: (to, from, next) => {
-      const email = localStorage.getItem('pending_email')
-      if (!email) next({ name: 'SignIn' }); else next()
-    }
-  },
+        path: '/sign-in',
+        name: 'SignIn',
+        component: SignInView,
+        meta: { guestOnly: true }
+      },
+      {
+        path: '/verify',
+        name: 'Verify',
+        component: VerificationView,
+        meta: { guestOnly: true },
+        beforeEnter: (to, from, next) => {
+          const email = localStorage.getItem('pending_email')
+          if (!email) next({ name: 'SignIn' }); else next()
+        }
+      },
 
-  // ── Full-screen routes (no shell) ───────────────────
-  {
-    path: '/meetings/:id',
-    name: 'MeetingDetails',
-    component: () => import('../views/MeetingDetailsView.vue'),
-    props: true,
-    meta: { requiresAuth: true }
-  },
+      // ── Full-screen routes (no shell) ───────────────────
+      {
+        path: '/meetings/:id',
+        name: 'MeetingDetails',
+        component: () => import('../views/MeetingDetailsView.vue'),
+        props: true,
+        meta: { requiresAuth: true }
+      },
     ]
   }
 ]
@@ -90,7 +90,7 @@ router.beforeEach((to, from, next) => {
   // 3. Admin Guard
   if (to.meta.requiresAdmin && userRole !== 'admin') {
     toast.error("Access Denied: Admin privileges required.");
-    return next({ name: 'profile' }); 
+    return next({ name: 'profile' });
   }
 
   next(); // Always call next() to finish the hook
