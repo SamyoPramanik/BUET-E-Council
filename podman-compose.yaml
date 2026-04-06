@@ -1,0 +1,49 @@
+services:
+  # 1. The Database
+  db:
+    image: docker.io/ankane/pgvector:latest
+    container_name: ecouncil_db
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=buet_admin_pass
+      - POSTGRES_DB=ecouncil_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  # 2. The Backend
+  backend:
+    build:
+      context: ./back-end
+      dockerfile: Containerfile
+    container_name: ecouncil_api
+    # --- KEY UPDATE: VOLUME MAPPING ---
+    # This lets you edit Python code on Linux Mint and see changes instantly
+    volumes:
+      - ./back-end:/app:Z
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://admin:buet_admin_pass@db:5432/ecouncil_db
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  # 3. The Frontend
+  frontend:
+    image: node:22-alpine
+    container_name: ecouncil_ui
+    working_dir: /app
+    volumes:
+      - ./front-end:/app
+      # --- KEY UPDATE: ANONYMOUS VOLUME ---
+      # Prevents your local node_modules from conflicting with container ones
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    # Added 'sh -c' to ensure npm install runs if you're on a fresh clone
+    command: >
+      sh -c "npm install && npm run dev -- --host"

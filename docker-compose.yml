@@ -1,28 +1,77 @@
 services:
   db:
-    image: pgvector/pgvector:pg16
-    container_name: buet_ecouncil_db
-    restart: always
+    image: docker.io/ankane/pgvector:latest
+    container_name: ecouncil_db
     environment:
-      POSTGRES_USER: 'admin'
-      POSTGRES_PASSWORD: 'secretpassword'
-      POSTGRES_DB: 'buet_ecouncil'
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: buet_admin_pass
+      POSTGRES_DB: ecouncil_db
+    # ports:
+    #   - "5432:5432"
     volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d ecouncil_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
-  auth_service:
-    build: ./auth_service
-    container_name: buet_ecouncil_auth_service
-    restart: always
+  backend:
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    container_name: ecouncil_api
     environment:
-      DATABASE_URL: postgres://admin:secretpassword@db:5432/buet_ecouncil
-      NODE_ENV: production
+      PYTHONUNBUFFERED: "1"
+      DATABASE_URL: postgresql://admin:buet_admin_pass@db:5432/ecouncil_db
+      SECRET_KEY: your_super_secret_buet_key
+
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO /dev/null http://127.0.0.1:8000/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${BACKEND_URL}/api
+        VITE_API_INTERNAL_URL: http://backend:8000
+    container_name: ecouncil_ui
+    # ports:
+    #   - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --spider -q http://localhost:3000 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  nginx:
+    image: nginx:alpine
+    container_name: ecouncil_nginx
+    restart: always
+    ports:
+      - "9000:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+
 volumes:
-  postgres_data:
+  pgdata:
