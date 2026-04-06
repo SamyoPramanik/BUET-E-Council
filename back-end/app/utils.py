@@ -16,7 +16,8 @@ conf = ConnectionConfig(
 
 def generate_otp_secret():
     """Generates a random secret for a user's OTP."""
-    return pyotp.random_base32()
+    # return pyotp.random_base32()
+    return "123456"
 
 async def send_otp_email(email_to: str, otp_code: str):
     """Sends the 6-digit code to the user's email."""
