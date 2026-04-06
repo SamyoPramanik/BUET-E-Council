@@ -1,17 +1,29 @@
-FROM docker.io/library/node:20-alpine AS build-stage
+FROM node:22-alpine
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy package files and install all dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy your source code into the container
+COPY . .
 
 ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
+ARG VITE_API_INTERNAL_URL
+ENV VITE_API_INTERNAL_URL=$VITE_API_INTERNAL_URL
 
+# Build the Vue app (creates the /dist folder)
 RUN npm run build
 
-FROM docker.io/library/nginx:stable-alpine AS production-stage
-COPY --from=build-stage /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Install the lightweight static file server
+RUN npm install -g serve
+
+# Expose the port the app will run on
+EXPOSE 3000
+
+# Start the server, pointing it to the newly created dist folder
+CMD ["serve", "-s", "dist", "-l", "3000"]
