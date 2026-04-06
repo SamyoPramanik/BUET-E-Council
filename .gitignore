@@ -65,3 +65,4 @@ Thumbs.db
 # Ignore generated PDFs or uploads if they are stored locally
 app/static/pdfs/*
 !app/static/pdfs/.gitkeep
+.env
