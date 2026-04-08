@@ -8,8 +8,8 @@ import {
 } from 'lucide-vue-next'
 
 // ── API endpoints ─────────────────────────────────────────────────────────────
-const USERS_URL     = '/api/buet/users.php'
-const DEAN_HEAD_URL = '/api/buet/Dean_Head.php'
+const USERS_URL     = 'https://regoffice.buet.ac.bd/filetracker/my-php-api/api/users.php'
+const DEAN_HEAD_URL = 'https://regoffice.buet.ac.bd/filetracker/my-php-api/api/Dean_Head.php'
 
 // ── NOTE: The API keys all have trailing colons, e.g. "id:", "name:", etc.
 // We normalise them on load.
