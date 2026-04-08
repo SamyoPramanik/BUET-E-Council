@@ -35,3 +35,9 @@ class MeetingPDFResponse(BaseModel):
     meeting_id: uuid_pkg.UUID
     agenda_pdf: Optional[uuid_pkg.UUID] = None      # Now stores UploadedFile.id (UUID)
     resolution_pdf: Optional[uuid_pkg.UUID] = None  # Now stores UploadedFile.id (UUID)
+
+class MeetingCreate(BaseModel):
+    is_academic:  bool
+    serial_num:   int
+    meeting_date: Optional[datetime] = None
+

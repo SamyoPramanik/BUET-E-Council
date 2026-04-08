@@ -25,7 +25,7 @@ from app.dependencies import get_current_user
 from app.models import Agendum, Meeting, Resolution, User, UserRole, UploadedFile, SignatureCard, MeetingSignatureLink
 from app.schemas.meetings import (
     MeetingPDFResponse, MeetingSummary,
-    MeetingUpdate, PaginatedMeetingResponse,
+    MeetingUpdate, PaginatedMeetingResponse, MeetingCreate
 )
 from app.schemas.signature_cards import *
 
@@ -85,6 +85,52 @@ def _generate_pdf(content: str, dest_path: Path) -> None:
     """Stub renderer — replace with WeasyPrint / ReportLab when ready."""
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     dest_path.write_text(content, encoding="utf-8")
+
+# ════════════════════════════════════════════════════════════════════════════
+# POST /meetings/  — create a new meeting
+# ════════════════════════════════════════════════════════════════════════════
+
+@router.post("/", response_model=Meeting, status_code=status.HTTP_201_CREATED)
+def create_meeting(
+    data:         MeetingCreate,
+    session:      Session = Depends(get_session),
+    current_user: User    = Depends(get_current_user),
+):
+    """
+    Create a new meeting record with minimal required fields.
+    Title, description, conclusion etc. are left blank for editing later.
+
+    201 — created
+    400 — serial_num already exists for this council type
+    403 — viewer
+    """
+    _require_modifier(current_user)
+
+    # Check uniqueness: same serial_num + is_academic cannot exist twice
+    conflict = session.exec(
+        select(Meeting).where(
+            Meeting.serial_num  == data.serial_num,
+            Meeting.is_academic == data.is_academic,
+        )
+    ).first()
+    if conflict:
+        council = "Academic Council" if data.is_academic else "Syndicate"
+        raise HTTPException(
+            status_code=400,
+            detail=f"Meeting #{data.serial_num} already exists for {council}. Please use a different serial number.",
+        )
+
+    meeting = Meeting(
+        serial_num=data.serial_num,
+        is_academic=data.is_academic,
+        meeting_date=data.meeting_date,
+        title="",           # filled in later via PATCH
+        is_finished=False,
+    )
+    session.add(meeting)
+    session.commit()
+    session.refresh(meeting)
+    return meeting
 
 
 # ════════════════════════════════════════════════════════════════════════════
