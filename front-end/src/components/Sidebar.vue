@@ -19,6 +19,17 @@
         </div>
         <span class="nav-text">Meetings</span>
       </router-link>
+
+            <RouterLink
+            to="/participants"
+            class="nav-item"
+            :class="{ 'nav-item--active': $route.path.startsWith('/participants') }"
+          >
+            <div class="icon-wrapper">
+            <GraduationCap :size="20" />
+          </div>
+            <span class="nav-label">Participants</span>
+      </RouterLink>
     </nav>
   </aside>
 </template>
@@ -27,7 +38,7 @@
 import { ref, computed } from 'vue';
 import { authState } from '../store/auth'; // Using your existing auth store
 
-import { Users as UsersIcon } from 'lucide-vue-next';
+import { Users as UsersIcon, GraduationCap } from 'lucide-vue-next';
 
 const isExpanded = ref(false);
 const isAuthenticated = computed(() => authState.isAuthenticated);

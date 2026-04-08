@@ -5,7 +5,12 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     port: 5173,
-    // You only need proxy settings here if you want to avoid 
-    // writing 'http://localhost:8000' in your api.js baseURL.
-  }
-})
+    proxy: {
+      '/api/buet': {
+        target: 'https://regoffice.buet.ac.bd/filetracker/my-php-api/api',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/buet/, '')
+      }
+    }
+  }   // ← make sure this closes 'server'
+})    // ← and this closes defineConfig
