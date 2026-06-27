@@ -41,7 +41,7 @@ services:
 
   frontend:
     build:
-      context: ./front-end
+      context: ./front-end-react
       dockerfile: Dockerfile
       args:
         VITE_API_BASE_URL: ${BACKEND_URL}/api
