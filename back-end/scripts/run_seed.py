@@ -150,8 +150,7 @@ class _SmartParticipantMap:
         return list(self._created)
 
 def run_all_seeds():
-    # Start with a blank slate
-    reset_db()
+    # Removed reset_db() per request to not drop any tables
 
     with Session(engine) as session:
         try:
