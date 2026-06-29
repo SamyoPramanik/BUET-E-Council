@@ -1,0 +1,5 @@
+.main-content-authenticated {
+  margin-left: 64px;
+  transition: margin-left 0.3s ease;
+  width: calc(100% - 64px);
+}

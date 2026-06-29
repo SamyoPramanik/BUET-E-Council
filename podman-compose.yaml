@@ -36,7 +36,7 @@ services:
     container_name: ecouncil_ui
     working_dir: /app
     volumes:
-      - ./front-end:/app
+      - ./front-end-react:/app
       # --- KEY UPDATE: ANONYMOUS VOLUME ---
       # Prevents your local node_modules from conflicting with container ones
       - /app/node_modules

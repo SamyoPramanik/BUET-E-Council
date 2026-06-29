@@ -1,0 +1,155 @@
+/* components/RichTextEditor.css — merged from the Vue component's scoped
+   and global <style> blocks (React has no scoping, but `rte-*` classes are
+   specific enough to be safe as plain global CSS). */
+
+@import url('https://fonts.googleapis.com/css2?family=Kalpurush&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+.rte-wrapper {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  transition: box-shadow .2s, border-color .2s;
+  position: relative;
+  /* No overflow:hidden here — that's what was clipping dropdowns */
+}
+.rte-editable {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147,197,253,.2);
+}
+
+.rte-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 12px 12px 0 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: thin;
+}
+
+.rte-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid #dde2eb;
+  border-radius: 7px;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.rte-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 8px;
+  min-width: 30px;
+  min-height: 30px;
+  font-size: 13px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid #e5e7eb;
+  cursor: pointer;
+  color: #374151;
+  transition: background .12s, color .12s;
+  white-space: nowrap;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.rte-btn:last-child { border-right: none; }
+.rte-btn:hover  { background: #f1f5f9; }
+.rte-btn.active { background: #dbeafe; color: #1d4ed8; }
+.rte-btn.icon-btn { padding: 5px 7px; }
+.rte-btn.sm { font-size: 11px; padding: 3px 5px; min-width: auto; }
+.rte-btn.danger       { color: #dc2626; }
+.rte-btn.danger:hover { background: #fee2e2; }
+
+.split-left  { border-radius: 6px 0 0 6px; border-right: 1px solid #e5e7eb; }
+.split-right { padding: 5px 6px; border-right: none; border-radius: 0 6px 6px 0; }
+
+.rte-select {
+  padding: 4px 6px; font-size: 12px; border: none; outline: none;
+  background: transparent; cursor: pointer; color: #374151; max-width: 120px;
+}
+
+.rte-size-input {
+  width: 36px; text-align: center; font-size: 13px;
+  border: none; outline: none; background: transparent; color: #374151;
+  -moz-appearance: textfield;
+}
+.rte-size-input::-webkit-inner-spin-button,
+.rte-size-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* Editor content */
+.rte-content .tiptap {
+  min-height: var(--rte-min-height, 160px);
+  padding: 14px 18px;
+  outline: none;
+  font-size: 15px;
+  line-height: 1.85;
+  color: #1e293b;
+  font-family: 'Kalpurush', Georgia, serif;
+}
+.rte-content .tiptap p  { margin: 0 0 .6em; }
+.rte-content .tiptap ul { padding-left: 1.6em; margin: .4em 0; list-style-type: disc; }
+.rte-content .tiptap ol { padding-left: 1.6em; margin: .4em 0; list-style-type: decimal; }
+.rte-content .tiptap li { margin-bottom: .15em; display: list-item; }
+
+.rte-content table {
+  border-collapse: collapse; width: 100%; margin: 1em 0; table-layout: fixed;
+}
+.rte-content th,
+.rte-content td {
+  border: 1px solid #cbd5e1; padding: 7px 11px;
+  min-width: 60px; vertical-align: top; position: relative;
+}
+.rte-content th { background: #f1f5f9; font-weight: 600; }
+.rte-content .column-resize-handle {
+  position: absolute; right: -2px; top: 0; bottom: 0;
+  width: 4px; background: #93c5fd; cursor: col-resize; z-index: 10;
+}
+.rte-content .selectedCell { background: #eff6ff; }
+
+/* ── Teleported dropdowns (rendered via a portal to document.body) ── */
+.rte-float-dropdown {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.12), 0 4px 20px rgba(0,0,0,.08);
+  overflow: hidden;
+  min-width: 148px;
+}
+
+.rte-float-item {
+  display: block;
+  width: 100%;
+  padding: 7px 14px;
+  font-size: 13px;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #374151;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background .1s;
+}
+.rte-float-item:last-child { border-bottom: none; }
+.rte-float-item:hover { background: #eff6ff; color: #1d4ed8; }
+
+.rte-float-grid {
+  padding: 10px;
+  min-width: auto !important;
+}
+.rte-float-grid .grid-label {
+  font-size: 11px; text-align: center; color: #64748b; margin: 0 0 6px;
+}
+.rte-float-grid .grid-cells { display: flex; flex-direction: column; gap: 2px; }
+.rte-float-grid .grid-row   { display: flex; gap: 2px; }
+.rte-float-grid .grid-cell  {
+  width: 18px; height: 18px; border: 1px solid #cbd5e1;
+  border-radius: 2px; cursor: pointer; background: #f8fafc;
+  transition: background .08s, border-color .08s;
+}
+.rte-float-grid .grid-cell.highlighted { background: #bfdbfe; border-color: #3b82f6; }

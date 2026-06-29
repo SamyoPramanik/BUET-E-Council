@@ -1,0 +1,4 @@
+/* drag ghost is slightly transparent */
+[draggable='true']:active {
+  opacity: 0.6;
+}

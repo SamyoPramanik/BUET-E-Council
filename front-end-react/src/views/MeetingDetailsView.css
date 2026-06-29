@@ -1,0 +1,24 @@
+.prose p { margin-top: 1.25em; margin-bottom: 1.25em; }
+
+/* ── Agenda lists ── */
+.ag-list { display: flex; flex-direction: column; }
+.ag-card-wrap { transition: opacity .15s, transform .15s; }
+
+/* ── Empty states ── */
+.ag-empty {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 3rem 1.5rem; background: #f8fafc;
+  border: 2px dashed #e2e8f0; border-radius: 20px;
+  text-align: center; gap: 6px;
+}
+.ag-empty--suppl   { background: #fffbeb; border-color: #fde68a; }
+.ag-empty-icon     { width: 52px; height: 52px; border-radius: 14px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+.ag-empty-icon--suppl { background: #fef3c7; }
+.ag-empty-title    { font-size: 15px; font-weight: 700; color: #475569; margin: 0; }
+.ag-empty-sub      { font-size: 13px; color: #94a3b8; margin: 0; max-width: 320px; }
+
+/* ── Sidebar sub-items ── */
+.sidebar-agenda-item           { position: relative; }
+.sidebar-agenda-item.sidebar-dragging       { opacity: 0.4; background: #eff6ff; }
+.sidebar-agenda-item.sidebar-dragging-suppl { opacity: 0.4; background: #fffbeb; }
+.drag-grip-sidebar             { display: flex; align-items: center; }

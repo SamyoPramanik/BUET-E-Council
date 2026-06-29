@@ -1,0 +1,82 @@
+/* components/InsertStrip.css — ported verbatim from the Vue component's
+   <style scoped> block. */
+
+.insert-strip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  margin: 0;
+  cursor: default;
+  z-index: 10;
+}
+
+.strip-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background .15s;
+}
+.insert-strip.is-hovered .strip-line {
+  background: linear-gradient(90deg, transparent 0%, #bfdbfe 20%, #bfdbfe 80%, transparent 100%);
+}
+
+.strip-btns {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 1;
+  background: #f8fafc;
+  padding: 0 8px;
+  animation: insert-strip-fade-in 150ms ease-out;
+}
+@keyframes insert-strip-fade-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.strip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 11px 3px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid;
+  transition: all .12s;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.strip-btn.regular {
+  background: #fff;
+  border-color: #93c5fd;
+  color: #2563eb;
+}
+.strip-btn.regular:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  box-shadow: 0 1px 6px rgba(59,130,246,.15);
+}
+
+.strip-btn.template {
+  background: #fff;
+  border-color: #d1d5db;
+  color: #6b7280;
+}
+.strip-btn.template:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  box-shadow: 0 1px 6px rgba(0,0,0,.08);
+}
+
+.insert-strip.is-disabled {
+  pointer-events: none;
+  opacity: .4;
+}
