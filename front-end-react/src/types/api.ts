@@ -28,6 +28,20 @@ export interface MeResponse {
   sessions: SessionInfo[]
 }
 
+export interface UserAccount {
+  id: string
+  email: string
+  role: UserRole
+  created_at: string
+}
+
+export interface CreateUserRequest {
+  email: string
+  role: UserRole
+  /** Omit to have the backend auto-generate and email a random password. */
+  password?: string
+}
+
 // ── Participants (back-end/app/schemas/participants.py) ──────────────────
 
 export interface ParticipantRead {

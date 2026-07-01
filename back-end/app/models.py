@@ -45,12 +45,10 @@ class User(SQLModel, table=True):
         default_factory=uuid_pkg.uuid4,
         primary_key=True, index=True, nullable=False,
     )
-    email:             str           = Field(unique=True, index=True, nullable=False)
-    role:              UserRole      = Field(default=UserRole.viewer, nullable=False)
-    otp_secret:        Optional[str] = Field(default=None)
-    last_otp_timestep: Optional[int] = Field(default=None)
-    is_verified:       bool          = Field(default=False)
-    created_at:        datetime      = Field(
+    email:           str      = Field(unique=True, index=True, nullable=False)
+    role:            UserRole = Field(default=UserRole.viewer, nullable=False)
+    hashed_password: str      = Field(nullable=False)
+    created_at:      datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
     sessions: List["UserSession"] = Relationship(back_populates="user")
@@ -116,7 +114,14 @@ class ParticipantCard(SQLModel, table=True):
     """One row per unique participant string seen in meeting minutes."""
     id:            uuid_pkg.UUID            = Field(default_factory=uuid_pkg.uuid4, primary_key=True)
     content:       str                      = Field(index=True)
-    role:          MemberRole               = Field(default=MemberRole.REGULAR, index=True)
+    role:          MemberRole               = Field(
+        default=MemberRole.REGULAR,
+        sa_column=Column(
+            sa.Enum(MemberRole, name="memberrole_enum", values_callable=lambda x: [e.value for e in x]),
+            index=True,
+            nullable=False,
+        ),
+    )
     email:         Optional[str]            = Field(default=None, nullable=True)
     department_id: uuid_pkg.UUID            = Field(foreign_key="department.id", index=True)
     department:    Optional["Department"]   = Relationship(back_populates="participants")

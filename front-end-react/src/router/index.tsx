@@ -1,13 +1,13 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import MainLayout from '../layouts/MainLayout'
 import SignInView from '../views/SignInView'
-import VerificationView from '../views/VerificationView'
 import UnauthorizedView from '../views/UnauthorizedView'
 import ProfileView from '../views/ProfileView'
+import ManageStaffView from '../views/ManageStaffView'
 import MeetingsView from '../views/MeetingsView'
 import ParticipantsView from '../views/ParticipantsView'
 import MeetingDetailsView from '../views/MeetingDetailsView'
-import { RequireAuth, GuestOnly, RequireAdmin, RequirePendingEmail, AdminPanelRedirect } from './guards'
+import { RequireAuth, GuestOnly, RequireAdmin, AdminPanelRedirect } from './guards'
 
 /**
  * Port of router/index.js.
@@ -67,6 +67,16 @@ export const router = createBrowserRouter([
           </RequireAuth>
         ),
       },
+      {
+        path: 'staff',
+        element: (
+          <RequireAuth>
+            <RequireAdmin>
+              <ManageStaffView />
+            </RequireAdmin>
+          </RequireAuth>
+        ),
+      },
     ],
   },
   {
@@ -74,16 +84,6 @@ export const router = createBrowserRouter([
     element: (
       <GuestOnly>
         <SignInView />
-      </GuestOnly>
-    ),
-  },
-  {
-    path: '/verify',
-    element: (
-      <GuestOnly>
-        <RequirePendingEmail>
-          <VerificationView />
-        </RequirePendingEmail>
       </GuestOnly>
     ),
   },

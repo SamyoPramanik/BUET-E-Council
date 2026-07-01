@@ -1,4 +1,7 @@
-import pyotp
+import secrets
+import string
+
+import bcrypt
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from pydantic import SecretStr
 import os
@@ -14,25 +17,39 @@ conf = ConnectionConfig(
     MAIL_SSL_TLS=False,
 )
 
-def generate_otp_secret():
-    """Generates a random secret for a user's OTP."""
-    return pyotp.random_base32()
 
-async def send_otp_email(email_to: str, otp_code: str):
-    """Sends the 6-digit code to the user's email."""
+def hash_password(plain_password: str) -> str:
+    """Hashes a plaintext password for storage."""
+    return bcrypt.hashpw(plain_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Checks a plaintext password against a stored bcrypt hash."""
+    return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
+
+
+def generate_random_password(length: int = 12) -> str:
+    """Generates a random password containing letters, digits, and punctuation."""
+    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+    return "".join(secrets.choice(alphabet) for _ in range(length))
+
+
+async def send_credentials_email(email_to: str, password: str):
+    """Emails a newly created account's login credentials."""
     message = MessageSchema(
-        subject="BUET e-Council Login Code",
-        recipients=[email_to], # type: ignore
-        body=f"Your secure login code is: {otp_code}. It expires in 5 minutes.",
-        subtype=MessageType.plain
+        subject="Your BUET e-Council Account",
+        recipients=[email_to],  # type: ignore
+        body=(
+            "An account has been created for you on BUET e-Council.\n\n"
+            f"Email: {email_to}\n"
+            f"Password: {password}\n\n"
+            "Please keep this password safe. You can change it after logging in."
+        ),
+        subtype=MessageType.plain,
     )
     fm = FastMail(conf)
     await fm.send_message(message)
 
-def verify_otp_code(secret: str, code: str):
-    """Verifies the code using the user's secret."""
-    totp = pyotp.TOTP(secret, interval=300) # Valid for 5 minutes
-    return totp.verify(code)
 
 def extract_plain_text(lexical_json: dict) -> str:
     """Helper to pull plain text out of the Lexical JSON structure"""

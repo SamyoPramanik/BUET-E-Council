@@ -19,9 +19,7 @@ CREATE TABLE "user" (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     email VARCHAR NOT NULL UNIQUE,
     role userrole_enum NOT NULL DEFAULT 'viewer',
-    otp_secret VARCHAR,
-    last_otp_timestep INTEGER,
-    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    hashed_password VARCHAR NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

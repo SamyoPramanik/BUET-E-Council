@@ -1,22 +1,9 @@
 import api from '../utils/api'
-import type { RequestOtpResponse, VerifyOtpResponse } from './types'
+import type { LoginResponse } from './types'
 
-/**
- * Typed wrappers around the 3 endpoints in back-end/app/api/auth.py.
- * These did not exist as standalone functions in the Vue app (the calls
- * were inlined in SignInView.vue / VerificationView.vue) — extracted here
- * because there is no page yet to inline them into.
- */
-
-/** POST /auth/request-otp — always resolves 200, even for unknown emails. */
-export async function requestOtp(email: string): Promise<RequestOtpResponse> {
-  const { data } = await api.post<RequestOtpResponse>('/auth/request-otp', { email })
-  return data
-}
-
-/** POST /auth/verify-otp — resolves with a new session on success. */
-export async function verifyOtp(email: string, code: string): Promise<VerifyOtpResponse> {
-  const { data } = await api.post<VerifyOtpResponse>('/auth/verify-otp', { email, code })
+/** POST /auth/login — resolves with a new session on success. */
+export async function login(email: string, password: string): Promise<LoginResponse> {
+  const { data } = await api.post<LoginResponse>('/auth/login', { email, password })
   return data
 }
 

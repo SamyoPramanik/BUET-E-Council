@@ -1,0 +1,58 @@
+/* Printable meeting document — invisible on screen, only rendered by the browser's print/Save-as-PDF pipeline. */
+
+.pm-page { display: none; }
+
+@media print {
+  @page { size: A4; margin: 18mm 16mm; }
+
+  .screen-only { display: none !important; }
+
+  .pm-page {
+    display: block;
+    font-family: 'Kalpurush', Georgia, serif;
+    color: #111827;
+    font-size: 12.5pt;
+    line-height: 1.6;
+  }
+
+  .pm-masthead { text-align: center; margin-bottom: 22px; }
+  .pm-org { font-size: 11pt; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #334155; margin: 0; }
+  .pm-council-type { font-size: 10pt; color: #64748b; margin: 2px 0 10px; }
+  .pm-title { font-size: 18pt; font-weight: 800; margin: 0 0 8px; }
+  .pm-meta-row { display: flex; justify-content: center; gap: 8px; font-size: 10pt; color: #475569; }
+
+  .pm-section { margin-top: 20px; break-inside: avoid-page; }
+  .pm-section-title {
+    font-size: 12pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+    border-bottom: 1.5px solid #1e293b; padding-bottom: 4px; margin: 0 0 10px;
+  }
+
+  .pm-sub-label { font-size: 9.5pt; font-weight: 700; text-transform: uppercase; color: #64748b; margin: 10px 0 4px; }
+  .pm-participant { margin: 0 0 6px; }
+  .pm-participant-list { margin: 0; padding-left: 1.4em; }
+  .pm-participant-list li { margin-bottom: 3px; }
+
+  .pm-empty { color: #94a3b8; font-style: italic; margin: 0; }
+
+  .pm-rich p { margin: 0 0 0.6em; }
+  .pm-rich ul { padding-left: 1.6em; margin: 0.4em 0; list-style-type: disc; }
+  .pm-rich ol { padding-left: 1.6em; margin: 0.4em 0; list-style-type: decimal; }
+  .pm-rich table { border-collapse: collapse; width: 100%; margin: 0.6em 0; }
+  .pm-rich th, .pm-rich td { border: 1px solid #cbd5e1; padding: 5px 8px; }
+  .pm-rich th { background: #f1f5f9; font-weight: 700; }
+
+  .pm-agenda { margin-bottom: 16px; break-inside: avoid-page; }
+  .pm-agenda-title { font-size: 11pt; font-weight: 700; margin: 0 0 6px; }
+
+  .pm-file-list { list-style: none; margin: 6px 0 0; padding: 0; font-size: 10pt; color: #475569; }
+  .pm-file-list li { margin-bottom: 2px; }
+
+  .pm-resolution { margin-top: 8px; padding: 10px 12px; border-left: 3px solid #cbd5e1; background: #f8fafc; }
+  .pm-resolution-label { font-size: 9.5pt; font-weight: 700; text-transform: uppercase; color: #64748b; margin: 0 0 4px; }
+
+  .pm-signatures-section { break-inside: avoid-page; }
+  .pm-signatures-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px 32px; margin-top: 6px; }
+  .pm-sig-card { break-inside: avoid; text-align: center; padding-top: 28px; }
+  .pm-sig-line { border-top: 1px solid #1e293b; margin: 0 8px 6px; }
+  .pm-sig-card-line { margin: 0 0 2px; font-size: 10.5pt; }
+}

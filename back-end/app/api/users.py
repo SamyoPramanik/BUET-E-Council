@@ -1,13 +1,108 @@
-from fastapi import APIRouter, Depends, Header, status, Response
+import logging
+
+from fastapi import APIRouter, Depends, Header, HTTPException, status, Response
 from sqlmodel import Session, select, desc, delete, col
-from typing import Dict, Any
+from typing import Dict, Any, List
 from uuid import UUID
 
 from ..database import get_session
 from ..models import User, UserSession
-from ..dependencies import get_current_user
+from ..schemas.users import UserCreate, UserRead
+from ..dependencies import get_current_user, get_admin_user
+from ..utils import hash_password, generate_random_password, send_credentials_email
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/users", tags=["Users"])
+
+@router.get(
+    "",
+    response_model=List[UserRead],
+    status_code=status.HTTP_200_OK,
+)
+async def list_users(
+    admin_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_session),
+):
+    """Admin-only: lists all user accounts."""
+    return db.exec(select(User).order_by(desc(User.created_at))).all()
+
+
+@router.post(
+    "",
+    response_model=UserRead,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        201: {"description": "Account created and credentials emailed"},
+        409: {"description": "Email already registered"},
+    },
+)
+async def create_user(
+    payload: UserCreate,
+    admin_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_session),
+):
+    """
+    Admin-only: creates a new account (staff/viewer/admin).
+
+    Uses the given password, or auto-generates one if omitted, then emails
+    the plaintext password to the new account's address. The plaintext
+    password is never stored or returned in the API response.
+    """
+    existing = db.exec(select(User).where(User.email == payload.email)).first()
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A user with this email already exists.",
+        )
+
+    plain_password = payload.password or generate_random_password()
+
+    new_user = User(
+        email=payload.email,
+        role=payload.role,
+        hashed_password=hash_password(plain_password),
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    try:
+        await send_credentials_email(new_user.email, plain_password)
+    except Exception as email_err:
+        # The account is already created; just log so the admin can notice
+        # and hand the password over some other way if delivery failed.
+        logger.error(f"Failed to email credentials to {new_user.email}: {email_err}")
+
+    return new_user
+
+
+@router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_user(
+    user_id: UUID,
+    admin_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_session),
+):
+    """Admin-only: removes a user account (and its sessions)."""
+    if user_id == admin_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot delete your own account.",
+        )
+
+    target = db.get(User, user_id)
+    if not target:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    db.exec(delete(UserSession).where(col(UserSession.user_id) == user_id))
+    db.delete(target)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
 
 @router.get(
     "/me", 
