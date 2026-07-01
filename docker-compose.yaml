@@ -1,0 +1,41 @@
+services:
+  db:
+    image: docker.io/ankane/pgvector:latest
+    container_name: ecouncil_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: buet_admin_pass
+      POSTGRES_DB: ecouncil_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d ecouncil_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    container_name: ecouncil_api
+    environment:
+      PYTHONUNBUFFERED: "1"
+      DATABASE_URL: postgresql://admin:buet_admin_pass@db:5432/ecouncil_db
+      SECRET_KEY: your_super_secret_buet_key
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO /dev/null http://127.0.0.1:8000/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  pgdata:
