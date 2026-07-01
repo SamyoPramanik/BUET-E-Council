@@ -56,13 +56,10 @@ async def create_agenda_item(
         )
 
     # 2. Guard: Verify serial number uniqueness within the scope of this meeting
-    # Note: If your schema allows multiple agendas across different meetings to share a serial_num,
-    # we filter by both meeting_id and serial_no here.
     conflict_query = select(agendum_table.c.id).where(
         and_(
-            agendum_table.c.serial_no == payload.serial_num
-            # Note: If you add a meeting_id foreign key directly to the agendum_table later, 
-            # you would uncomment a line here like: agendum_table.c.meeting_id == payload.meeting_id
+            agendum_table.c.serial_no == payload.serial_num,
+            agendum_table.c.meeting_id == payload.meeting_id
         )
     ).limit(1)
     
@@ -79,9 +76,10 @@ async def create_agenda_item(
             insert(agendum_table)
             .values(
                 serial_no=payload.serial_num,
-                content=None,      
-                resolution=None,   
-                is_supply=False  
+                content=None,
+                resolution=None,
+                is_supply=False,
+                meeting_id=payload.meeting_id
             )
             .returning(
                 agendum_table.c.id, 
@@ -241,6 +239,7 @@ async def update_agenda_item_attributes(
             .values(**update_data)
             .returning(
                 agendum_table.c.id,
+                agendum_table.c.meeting_id,
                 agendum_table.c.serial_no,
                 agendum_table.c.is_supply,
                 agendum_table.c.content,
@@ -259,11 +258,9 @@ async def update_agenda_item_attributes(
 
         await db.commit()
 
-        # Build consistent mock container response (meeting_id mock can match uuid.UUID instance if required, 
-        # or be pulled from related tracking metrics once structural tables align)
         return {
             "id": updated_row["id"],
-            "meeting_id": agenda_id, # Hard-coded proxy return to fulfill schema contract validation
+            "meeting_id": updated_row["meeting_id"],
             "serial_no": updated_row["serial_no"],
             "is_supply": updated_row["is_supply"],
             "content": updated_row["content"],

@@ -638,15 +638,14 @@ async def get_meeting_agenda_grouped(
         )
 
     # 2. Gather all related agendas ordered linearly by serial positioning
-    # SELECT id, serial_no, content, resolution, is_supply FROM agendum ORDER BY serial_no ASC;
-    # (Note: When you add meeting isolation columns to agendum later, add a .where() clause here)
+    # SELECT id, serial_no, content, resolution, is_supply FROM agendum WHERE meeting_id = :meeting_id ORDER BY serial_no ASC;
     agenda_query = select(
         agendum_table.c.id,
         agendum_table.c.serial_no,
         agendum_table.c.content,
         agendum_table.c.resolution,
         agendum_table.c.is_supply
-    ).order_by(asc(agendum_table.c.serial_no))
+    ).where(agendum_table.c.meeting_id == meeting_id).order_by(asc(agendum_table.c.serial_no))
 
     try:
         result = await db.execute(agenda_query)
@@ -722,9 +721,13 @@ async def delete_meeting_agenda_by_type(
 
     try:
         # 2. Pre-flight count: Determine how many items match this specific categorical filter setting
-        # SELECT COUNT(id) FROM agendum WHERE is_supply = :is_supply;
-        # (Note: Add your isolating meeting_id field filtering conditions here once schema keys align)
-        count_query = select(func.count(agendum_table.c.id)).where(agendum_table.c.is_supply == is_supply)
+        # SELECT COUNT(id) FROM agendum WHERE is_supply = :is_supply AND meeting_id = :meeting_id;
+        count_query = select(func.count(agendum_table.c.id)).where(
+            and_(
+                agendum_table.c.is_supply == is_supply,
+                agendum_table.c.meeting_id == meeting_id
+            )
+        )
         count_result = await db.execute(count_query)
         target_count = count_result.scalar() or 0
 
@@ -737,8 +740,13 @@ async def delete_meeting_agenda_by_type(
             }
 
         # 3. Execute conditional targeted data erasure block
-        # DELETE FROM agendum WHERE is_supply = :is_supply;
-        delete_statement = delete(agendum_table).where(agendum_table.c.is_supply == is_supply)
+        # DELETE FROM agendum WHERE is_supply = :is_supply AND meeting_id = :meeting_id;
+        delete_statement = delete(agendum_table).where(
+            and_(
+                agendum_table.c.is_supply == is_supply,
+                agendum_table.c.meeting_id == meeting_id
+            )
+        )
         await db.execute(delete_statement)
         await db.commit()
 

@@ -48,9 +48,9 @@ user_table = Table(
     Column("email", String(255), nullable=False, unique=True),
     Column("hashed_password", String, nullable=False),
     Column(
-        "role", 
-        Enum(UserRole, name="user_role", inherit_schema=True), 
-        nullable=False, 
+        "role",
+        Enum(UserRole, name="user_role", inherit_schema=True, values_callable=lambda obj: [e.value for e in obj]),
+        nullable=False,
         server_default=text("'viewer'")
     ),
     Column(
@@ -110,7 +110,7 @@ faculty_table = Table(
         server_default=text("gen_random_uuid()")
     ),
     Column("name_bangla", String(255), nullable=False, unique=True),
-    Column("name_english", String(255), nullable=False, unique=True)
+    Column("name_english", String(255), nullable=True, unique=True)
 )
 
 # Department Table
@@ -118,13 +118,13 @@ department_table = Table(
     "department",
     metadata,
     Column(
-        "id", 
-        UUID(as_uuid=True), 
-        primary_key=True, 
+        "id",
+        UUID(as_uuid=True),
+        primary_key=True,
         server_default=text("gen_random_uuid()")
     ),
     Column("name_bangla", String(255), nullable=False, unique=True),
-    Column("name_english", String(255), nullable=False, unique=True),
+    Column("name_english", String(255), nullable=True, unique=True),
     Column("alias", String(50), nullable=False, unique=True, index=True),
     Column(
         "faculty_id", 
@@ -179,19 +179,26 @@ agendum_table = Table(
     "agendum",
     metadata,
     Column(
-        "id", 
-        UUID(as_uuid=True), 
-        primary_key=True, 
+        "id",
+        UUID(as_uuid=True),
+        primary_key=True,
         server_default=text("gen_random_uuid()")
     ),
     Column("serial_no", Integer, nullable=False, index=True),
     Column("content", JSONB, nullable=True),
     Column("resolution", JSONB, nullable=True),
     Column(
-        "is_supply", 
-        Boolean, 
-        nullable=False, 
+        "is_supply",
+        Boolean,
+        nullable=False,
         server_default=text("FALSE")
+    ),
+    Column(
+        "meeting_id",
+        UUID(as_uuid=True),
+        ForeignKey("meeting.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
     )
 )
 
@@ -250,9 +257,9 @@ meeting_table = Table(
     Column("president", String(255), nullable=True),
     Column("serial_num", Integer, nullable=False, index=True),
     Column(
-        "status", 
-        Enum(MeetingStatus, name="meeting_status", inherit_schema=True), 
-        nullable=False, 
+        "status",
+        Enum(MeetingStatus, name="meeting_status", inherit_schema=True, values_callable=lambda obj: [e.value for e in obj]),
+        nullable=False,
         server_default=text("'draft'")
     ),
     Column(
