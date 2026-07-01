@@ -26,6 +26,12 @@ class UserRole(str, enum.Enum):
     VIEWER = "viewer"
     ADMIN = "admin"
 
+class MeetingStatus(str, enum.Enum):
+    """Mirror of the PostgreSQL 'user_role' ENUM."""
+    DRAFT = 'draft'
+    OPEN = 'open'
+    CLOSED = 'closed'
+
 
 # =============================================================================
 # 2. CORE ACCESS TABLES
@@ -103,7 +109,8 @@ faculty_table = Table(
         primary_key=True, 
         server_default=text("gen_random_uuid()")
     ),
-    Column("name_bangla", String(255), nullable=False, unique=True)
+    Column("name_bangla", String(255), nullable=False, unique=True),
+    Column("name_english", String(255), nullable=False, unique=True)
 )
 
 # Department Table
@@ -117,6 +124,7 @@ department_table = Table(
         server_default=text("gen_random_uuid()")
     ),
     Column("name_bangla", String(255), nullable=False, unique=True),
+    Column("name_english", String(255), nullable=False, unique=True),
     Column("alias", String(50), nullable=False, unique=True, index=True),
     Column(
         "faculty_id", 
@@ -242,10 +250,10 @@ meeting_table = Table(
     Column("president", String(255), nullable=True),
     Column("serial_num", Integer, nullable=False, index=True),
     Column(
-        "is_finished", 
-        Boolean, 
+        "status", 
+        Enum(MeetingStatus, name="meeting_status", inherit_schema=True), 
         nullable=False, 
-        server_default=text("FALSE")
+        server_default=text("'draft'")
     ),
     Column(
         "is_academic", 
@@ -274,7 +282,8 @@ meeting_table = Table(
         ForeignKey("file.id", ondelete="SET NULL"), 
         nullable=True,
         index=True
-    )
+    ),
+    Column("meeting_date", DateTime(timezone=True), nullable=False)
 )
 
 # Meeting-Signature M2M
