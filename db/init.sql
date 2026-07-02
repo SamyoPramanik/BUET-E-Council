@@ -270,22 +270,3 @@ CREATE INDEX ix_resolution_chunks_entities ON resolution_chunks USING GIN (
 CREATE INDEX ix_agendum_chunks_body ON agendum_chunks USING GIN (to_tsvector('simple', body));
 
 CREATE INDEX ix_resolution_chunks_body ON resolution_chunks USING GIN (to_tsvector('simple', body));
-
--- =============================================================================
--- User Seeding
--- =============================================================================
-INSERT INTO
-    "user" (email, role, is_verified)
-VALUES (
-        'admin@gmail.com',
-        'admin',
-        TRUE
-    );
-
-INSERT INTO
-    "user" (email, role, is_verified)
-VALUES (
-        'staff@gmail.com',
-        'staff',
-        TRUE
-    );
