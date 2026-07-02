@@ -4,13 +4,8 @@
  */
 export type UserRole = 'staff' | 'viewer' | 'admin'
 
-/** Response body of POST /auth/request-otp (back-end/app/api/auth.py). */
-export interface RequestOtpResponse {
-  message: string
-}
-
-/** Response body of POST /auth/verify-otp on success. */
-export interface VerifyOtpResponse {
+/** Response body of POST /auth/login on success (back-end/app/api/auth.py). */
+export interface LoginResponse {
   status: 'success'
   data: {
     session_id: string
@@ -19,7 +14,7 @@ export interface VerifyOtpResponse {
   }
 }
 
-/** Shape of the FastAPI error body, e.g. { "detail": "Invalid or expired OTP code." } */
+/** Shape of the FastAPI error body, e.g. { "detail": "Invalid email or password." } */
 export interface ApiErrorBody {
   detail?: string
 }

@@ -1,28 +1,37 @@
 # Auth Migration Notes
 
+> **Update (2026-07-01):** The OTP flow described below has been **replaced**
+> with email + password login. `POST /auth/request-otp` and
+> `POST /auth/verify-otp` no longer exist. See the current flow in section 1
+> below (updated in place) and [README.md](README.md#authentication) for the
+> user-facing summary. Sections 2–3 are kept as historical record of the
+> Vue → React port and are otherwise still accurate (session header/cookie
+> handling, route guards, HTTP client) — only the login step itself changed.
+
 Companion to [MIGRATION_PLAN.md](MIGRATION_PLAN.md). Documents the **real**
 authentication flow (as implemented in code today, not as described in
-`README.md`) and how to reproduce it in React without touching the backend.
+older revisions of `README.md`) and how it's wired up in React.
 
 ## 1. What the backend actually does
 
-There is **no JWT, no Pinia, no Bearer token** despite what `README.md` claims.
 The real flow, read from [back-end/app/api/auth.py](back-end/app/api/auth.py),
 [back-end/app/dependencies.py](back-end/app/dependencies.py), and
 [back-end/app/admin.py](back-end/app/admin.py):
 
-1. `POST /auth/request-otp` — body `{ email }`. Looks up the user, lazily
-   creates a `pyotp` secret if missing, and **prints** the OTP to server logs
-   (`print(f"--- DEBUG OTP: {otp_code} for {email} ---")`). Real email sending
-   via `fastapi-mail` exists in `utils.py` but is commented out. Always returns
-   `200` regardless of whether the email exists (anti-harvesting).
-2. `POST /auth/verify-otp` — body `{ email, code }`. **The real TOTP check is
-   commented out**; the endpoint currently hardcodes `if not code == "123456"`.
-   On success it creates a `UserSession` row (UUID primary key, 7-day
-   `expires_at`, captures `ip_address`/`user_agent`) and returns:
+1. `POST /auth/login` — body `{ email, password }`. Looks up the user and
+   checks the password against `User.hashed_password` with bcrypt
+   (`utils.verify_password`). On success it creates a `UserSession` row (UUID
+   primary key, 7-day `expires_at`, captures `ip_address`/`user_agent`) and
+   returns:
    ```json
    { "status": "success", "data": { "session_id": "<uuid>", "user_role": "admin|staff|viewer", "expires_at": "..." } }
    ```
+   On failure it returns `401` with `{ "detail": "Invalid email or password." }`.
+   There is no self-service sign-up — accounts only come from an admin via
+   `POST /users` (see [API_MIGRATION.md](API_MIGRATION.md)), which generates or
+   accepts a password and emails it via `utils.send_credentials_email`.
+2. `POST /auth/change-password` — body `{ current_password, new_password }`,
+   requires a valid session. Lets a logged-in user rotate their own password.
 3. Every protected endpoint requires a `Session-ID` header (a raw UUID, not a
    signed token) — validated in `get_current_user` against the `UserSession`
    table's `expires_at`. `get_admin_user` layers a `role == "admin"` check.
@@ -119,13 +128,13 @@ state survives a forced logout.
 
 ## 4. Things the frontend must **not** try to fix
 
-- The hardcoded `"123456"` OTP check and disabled email sending are backend
-  behavior. The React app should just submit whatever the user types and
-  display whatever error the backend returns — don't hardcode `"123456"` into
-  the frontend or special-case it.
-- Don't switch to a JWT/Bearer pattern because `README.md` describes one — the
-  real backend has no token signing at all. Header-based opaque session IDs are
-  the actual contract.
+- The frontend should just submit whatever email/password the user types and
+  display whatever error the backend returns — don't validate password
+  strength/format client-side beyond basic non-empty checks, since the backend
+  is the source of truth.
+- Don't switch to a JWT/Bearer pattern because older `README.md` revisions
+  described one — the real backend has no token signing at all. Header-based
+  opaque session IDs are the actual contract.
 - Don't centralize session revocation differently than today — `ProfileView`'s
   "Revoke" (single session) and "Sign out from all devices" map to
   `DELETE /users/sessions/{id}` and `DELETE /users/sessions` respectively
@@ -133,14 +142,16 @@ state survives a forced logout.
 
 ## 5. Manual test checklist (run against the live `docker-compose` stack)
 
-- [ ] Sign in with a registered email → OTP screen → enter `123456` → lands on `/meetings`.
+- [ ] Sign in with a registered email + correct password → lands on `/meetings`.
+- [ ] Sign in with a wrong password → error toast, stays on `/sign-in`.
 - [ ] Refresh the page while signed in → still authenticated (localStorage survives).
 - [ ] Visit a `requiresAuth` route while signed out → toast + redirect to `/sign-in`.
 - [ ] Visit `/sign-in` while already signed in → redirect to `/profile`.
 - [ ] Visit `/admin-panel` as a non-admin → toast "Access Denied" + redirect to `/profile`.
 - [ ] Visit `/admin-panel` as an admin → full-page navigation to `http://<host>:8000/admin/`, SQLAdmin loads without a second login prompt (cookie carried over).
+- [ ] Visit `/staff` as a non-admin → toast "Access Denied" + redirect to `/profile`.
+- [ ] Visit `/staff` as an admin → create an account, receive a toast confirming the email was sent, new account appears in the list and can log in with the emailed password.
 - [ ] Sign out from the Navbar dropdown → localStorage cleared, cookie expired, redirected to `/sign-in`.
 - [ ] In Profile, revoke a *different* session → toast success, list refreshes, you stay logged in.
 - [ ] In Profile, revoke your *current* session (or "Sign out from all devices") → redirected to `/sign-in`, fully logged out.
 - [ ] Force a `401` (e.g. manually clear `localStorage.session_id` then trigger an API call) → hard redirect to `/sign-in`, no stale UI flashes.
-- [ ] Visit `/verify` directly without a `pending_email` in `localStorage` → redirected to `/sign-in` (the route's `beforeEnter` guard, ported to a loader/wrapper check).

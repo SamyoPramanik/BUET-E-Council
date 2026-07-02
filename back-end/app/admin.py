@@ -65,8 +65,10 @@ admin_auth = AdminAuth(secret_key="your-very-secret-key")
 
 class UserAdmin(ModelView, model=User):
     # Use strings instead of class attributes to stop the type error
-    column_list = ["id", "email", "role", "is_verified"] 
+    column_list = ["id", "email", "role", "created_at"]
     column_searchable_list = ["email"]
+    # Never show/edit the password hash through the admin panel.
+    form_excluded_columns = ["hashed_password", "sessions"]
     icon = "fa-solid fa-user"
     category = "Accounts"
 

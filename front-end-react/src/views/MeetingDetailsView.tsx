@@ -23,6 +23,7 @@ import {
   Download,
   File as FileIcon,
   PenLine,
+  Printer,
   type LucideIcon,
 } from 'lucide-react'
 import api from '../utils/api'
@@ -34,7 +35,8 @@ import ParticipantCard from '../components/ParticipantCard'
 import AgendaBox from '../components/AgendaBox'
 import InsertStrip from '../components/InsertStrip'
 import SignatureCardsSection from '../components/SignatureCardsSection'
-import type { Meeting, ParticipantRead, AgendumResponse } from '../types/api'
+import PrintableMeeting from '../components/PrintableMeeting'
+import type { Meeting, ParticipantRead, AgendumResponse, SignatureCardResponse } from '../types/api'
 import './MeetingDetailsView.css'
 
 const OFFSET = 10000
@@ -65,6 +67,7 @@ export default function MeetingDetailsView() {
   const [allParticipants, setAllParticipants] = useState<ParticipantRead[]>([])
   const [meetingMembers, setMeetingMembers] = useState<ParticipantRead[]>([])
   const [agendas, setAgendas] = useState<AgendumResponse[]>([])
+  const [signatureCards, setSignatureCards] = useState<SignatureCardResponse[]>([])
 
   const currentPresident = meeting?.president_card_id ? allParticipants.find((p) => p.id === meeting.president_card_id) ?? null : null
 
@@ -103,16 +106,18 @@ export default function MeetingDetailsView() {
   const fetchAllData = useCallback(async () => {
     setLoading(true)
     try {
-      const [mRes, pRes, mbRes, agRes] = await Promise.all([
+      const [mRes, pRes, mbRes, agRes, sigRes] = await Promise.all([
         api.get<Meeting>(`/meetings/${meetingId}`),
         api.get<ParticipantRead[]>('/participants'),
         api.get<ParticipantRead[]>(`/meetings/${meetingId}/participants`),
         api.get<AgendumResponse[]>(`/agendas/?meeting_id=${meetingId}`),
+        api.get<SignatureCardResponse[]>(`/meetings/${meetingId}/signature-cards`),
       ])
       setMeeting(mRes.data)
       setAllParticipants(pRes.data || [])
       setMeetingMembers(mbRes.data || [])
       setAgendas(agRes.data || [])
+      setSignatureCards(sigRes.data || [])
     } catch (e) {
       console.error(e)
       toast.error('Could not load meeting data.')
@@ -478,7 +483,8 @@ export default function MeetingDetailsView() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
+    <>
+    <div className="screen-only h-screen flex flex-col bg-slate-50 overflow-hidden">
       {/* ══ HEADER ══════════════════════════════════════════════════════════ */}
       <header className="h-16 shrink-0 bg-white border-b border-slate-200 shadow-sm px-4 sm:px-6 flex items-center gap-3 z-50">
         <button onClick={() => setShowSections((v) => !v)} className="lg:hidden p-2.5 -ml-1 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors shrink-0">
@@ -498,6 +504,16 @@ export default function MeetingDetailsView() {
           </div>
         )}
         <div className="flex-1 min-w-0" />
+        {meeting && (
+          <button
+            onClick={() => window.print()}
+            className="shrink-0 flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-semibold bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all text-slate-600"
+            title="Print or save this meeting as a PDF"
+          >
+            <Printer size={16} />
+            <span className="hidden sm:inline">Print / Save PDF</span>
+          </button>
+        )}
         {meeting && (
           <div className="shrink-0">
             <span
@@ -1170,5 +1186,17 @@ export default function MeetingDetailsView() {
         </main>
       </div>
     </div>
+
+    {meeting && (
+      <PrintableMeeting
+        meeting={meeting}
+        president={currentPresident}
+        members={meetingMembers}
+        regularAgendas={regularAgendas}
+        supplAgendas={supplAgendas}
+        signatureCards={signatureCards}
+      />
+    )}
+    </>
   )
 }

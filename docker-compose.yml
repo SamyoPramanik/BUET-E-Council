@@ -27,6 +27,11 @@ services:
       PYTHONUNBUFFERED: "1"
       DATABASE_URL: postgresql://admin:buet_admin_pass@db:5432/ecouncil_db
       SECRET_KEY: your_super_secret_buet_key
+      # Required to actually deliver "new account" credential emails.
+      # Set these in a local .env file (see docker-compose docs) — do not
+      # hardcode real credentials here.
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
 
     ports:
       - "8000:8000"

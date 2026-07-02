@@ -1,7 +1,7 @@
 import pkgutil
 import importlib
 from sqlmodel import Session, select
-from app.database import engine
+from app.database import engine, init_db
 from db_manager import reset_db
 from seeds.users import seed_users
 from seeds.departments import get_department_seeds
@@ -151,6 +151,10 @@ class _SmartParticipantMap:
 
 def run_all_seeds():
     # Removed reset_db() per request to not drop any tables
+
+    # Ensure tables exist before seeding — the FastAPI app (which normally
+    # creates them via its lifespan startup) hasn't run yet at this point.
+    init_db()
 
     with Session(engine) as session:
         try:

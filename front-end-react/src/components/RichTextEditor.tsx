@@ -10,58 +10,8 @@ import { Table } from '@tiptap/extension-table'
 import { TableRow } from '@tiptap/extension-table-row'
 import { TableCell } from '@tiptap/extension-table-cell'
 import { TableHeader } from '@tiptap/extension-table-header'
-import { Extension } from '@tiptap/core'
+import { FontSize } from '../tiptap/fontSize'
 import './RichTextEditor.css'
-
-// ── Custom FontSize extension — ported verbatim (logic-for-logic),
-// framework-agnostic Tiptap code. Commands are named setCustomFontSize /
-// unsetCustomFontSize (rather than the Vue version's setFontSize) because
-// the installed @tiptap/extension-text-style now ships its OWN built-in
-// `fontSize` command group (added after the Vue app pinned an older
-// version) — reusing the name would conflict at the TS type level. The
-// stored attribute is still a bare numeric string (e.g. "16"), matching
-// the Vue app's format exactly, not the built-in extension's "16px" format.
-declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
-    customFontSize: {
-      setCustomFontSize: (size: number) => ReturnType
-      unsetCustomFontSize: () => ReturnType
-    }
-  }
-}
-
-const FontSize = Extension.create({
-  name: 'customFontSize',
-  addOptions() {
-    return { types: ['textStyle'] }
-  },
-  addGlobalAttributes() {
-    return [
-      {
-        types: this.options.types,
-        attributes: {
-          fontSize: {
-            default: null,
-            parseHTML: (el: HTMLElement) => el.style.fontSize?.replace('px', '') || null,
-            renderHTML: (a: { fontSize?: string }) => (a.fontSize ? { style: `font-size:${a.fontSize}px` } : {}),
-          },
-        },
-      },
-    ]
-  },
-  addCommands() {
-    return {
-      setCustomFontSize:
-        (size: number) =>
-        ({ chain }) =>
-          chain().setMark('textStyle', { fontSize: String(size) }).run(),
-      unsetCustomFontSize:
-        () =>
-        ({ chain }) =>
-          chain().setMark('textStyle', { fontSize: null }).removeEmptyTextStyle().run(),
-    }
-  },
-})
 
 /** Walks up from a DOM node (which may be a text node) to the nearest matching ancestor element. */
 function closestAncestor(node: Node, selector: string): Element | null {

@@ -27,7 +27,7 @@
 - **Syndicate Meetings** — Governing body meetings for university administration.
 - **Academic Council Meetings** — Meetings for academic policy and curriculum decisions.
 
-All users authenticate via **Email + OTP (One-Time Password)** — no passwords required.
+All users authenticate via **email + password**. There is no public sign-up — an admin creates every account (staff, viewer, or admin) and the system emails the new user their login password.
 
 ---
 
@@ -37,7 +37,7 @@ All users authenticate via **Email + OTP (One-Time Password)** — no passwords 
 - View published Syndicate and Academic Council meeting documents
 - View meeting agendas (read-only)
 - View list of meeting members (read-only)
-- Secure login via Email + OTP
+- Secure login via email + password
 
 ### For Admin Users
 - All normal user capabilities, plus:
@@ -46,7 +46,7 @@ All users authenticate via **Email + OTP (One-Time Password)** — no passwords 
 - **Add / Edit / Remove** meeting members
 - **Create and Edit** meeting agendas
 - **Upload and manage** meeting documents (minutes, notices, resolutions)
-- **Manage user roles** (grant or revoke admin access)
+- **Create and remove accounts** (staff, viewer, or admin) — a password is generated (or set manually) and emailed to the new user
 
 ---
 
@@ -54,31 +54,32 @@ All users authenticate via **Email + OTP (One-Time Password)** — no passwords 
 
 | Role        | View Documents | Edit Meetings | Edit Agendas | Manage Members | Manage Users |
 |-------------|:--------------:|:-------------:|:------------:|:--------------:|:------------:|
-| Normal User | ✅             | ❌            | ❌           | ❌             | ❌           |
+| Viewer      | ✅             | ❌            | ❌           | ❌             | ❌           |
+| Staff       | ✅             | ✅            | ✅           | ✅             | ❌           |
 | Admin       | ✅             | ✅            | ✅           | ✅             | ✅           |
 
 ---
 
 ## Authentication
 
-This system uses **Email + OTP** based authentication — no traditional passwords.
+This system uses **email + password** authentication. There is no self-service sign-up; an admin creates every account.
 
 ### Login Flow
 
 ```
-1. User enters their registered email address
-2. FastAPI backend generates a 6-digit OTP and sends it to that email
-3. User enters the OTP on the verification screen
-4. On success, backend returns a signed JWT token
-5. Vue.js stores the token and redirects based on role (Admin Dashboard or Viewer)
+1. Admin creates an account (email + role), with a password they set or one the system generates
+2. The new user's password is emailed to them
+3. User signs in with email + password at POST /auth/login
+4. On success, backend creates a UserSession row and returns an opaque session_id
+5. The frontend stores session_id/user_role and sends session_id as a request header on every call
 ```
 
 ### Security Notes
-- OTPs expire after **10 minutes**
-- Only **pre-registered** university email addresses can log in
-- Admins can register/deactivate user accounts
-- JWT tokens are verified on every protected route via FastAPI dependencies
-- All sessions are invalidated on logout
+- Passwords are hashed with **bcrypt** before storage — plaintext is never persisted
+- Only accounts created by an admin can log in — there is no public registration endpoint
+- Sessions are opaque UUIDs tracked server-side (`UserSession` table) with a 7-day expiry, not JWTs
+- Users can change their own password via `POST /auth/change-password`
+- Sessions can be individually revoked or all revoked at once from the Profile page, and are invalidated on logout
 
 ---
 
@@ -90,9 +91,9 @@ This system uses **Email + OTP** based authentication — no traditional passwor
 | Backend      | FastAPI (Python)                      |
 | Database     | PostgreSQL                            |
 | ORM          | SQLAlchemy + Alembic (migrations)     |
-| Auth / OTP   | smtplib / SendGrid + pyotp            |
-| Auth Token   | JWT via python-jose                   |
-| State Mgmt   | Pinia                                 |
+| Auth         | bcrypt password hashing + opaque session IDs |
+| Email        | fastapi-mail (SMTP)                   |
+| State Mgmt   | React Context                         |
 | HTTP Client  | Axios                                 |
 | File Storage | Local Storage / AWS S3                |
 
@@ -223,21 +224,11 @@ APP_ENV=development
 
 # Database
 DATABASE_URL=postgresql://user:password@localhost:5432/buet_ecouncil
+SECRET_KEY=your_secret_key_here
 
-# JWT
-SECRET_KEY=your_jwt_secret_key_here
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=10080   # 7 days
-
-# OTP Config
-OTP_EXPIRY_MINUTES=10
-
-# Email (SMTP)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@buet.ac.bd
-SMTP_PASSWORD=your_app_password
-EMAIL_FROM=no-reply@buet.ac.bd
+# Email (SMTP) — used to send new-account passwords
+MAIL_USERNAME=your_email@buet.ac.bd
+MAIL_PASSWORD=your_app_password
 ```
 
 ---
@@ -247,11 +238,21 @@ EMAIL_FROM=no-reply@buet.ac.bd
 FastAPI auto-generates interactive docs at `/docs` (Swagger UI) and `/redoc`.
 
 ### Auth
-| Method | Endpoint                  | Description               | Access     |
-|--------|---------------------------|---------------------------|------------|
-| POST   | `/api/auth/send-otp`      | Send OTP to email         | Public     |
-| POST   | `/api/auth/verify-otp`    | Verify OTP & receive JWT  | Public     |
-| POST   | `/api/auth/logout`        | Invalidate token          | All users  |
+| Method | Endpoint                      | Description                          | Access     |
+|--------|-------------------------------|---------------------------------------|------------|
+| POST   | `/api/auth/login`             | Log in with email + password          | Public     |
+| POST   | `/api/auth/change-password`   | Change your own password              | All users  |
+| DELETE | `/api/auth/sign-out`          | End the current session               | All users  |
+
+### Users
+| Method | Endpoint                  | Description                              | Access     |
+|--------|---------------------------|-------------------------------------------|------------|
+| GET    | `/api/users`               | List all accounts                        | Admin only |
+| POST   | `/api/users`               | Create an account, email its password    | Admin only |
+| DELETE | `/api/users/{id}`          | Remove an account                        | Admin only |
+| GET    | `/api/users/me`            | Current user profile + active sessions   | All users  |
+| DELETE | `/api/users/sessions/{id}` | Revoke one session                       | All users  |
+| DELETE | `/api/users/sessions`      | Revoke all of your sessions              | All users  |
 
 ### Meetings
 | Method | Endpoint                  | Description               | Access     |

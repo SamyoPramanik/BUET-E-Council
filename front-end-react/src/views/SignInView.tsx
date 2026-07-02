@@ -3,21 +3,20 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { isValidEmail } from '../utils/validators'
 import { useAuth } from '../auth/AuthContext'
-import { requestOtp } from '../auth/authApi'
+import { login } from '../auth/authApi'
 
 export default function SignInView() {
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, refresh } = useAuth()
 
-  // On mount, if already authenticated, redirect to home. Otherwise, ensure
-  // we aren't holding onto old 'pending_email'.
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/')
     }
-    localStorage.removeItem('pending_email')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -25,8 +24,8 @@ export default function SignInView() {
     if (isLoading) return
 
     // 1. Validation
-    if (!email) {
-      toast.error('Email is required!')
+    if (!email || !password) {
+      toast.error('Email and password are required!')
       return
     }
     if (!isValidEmail(email)) {
@@ -37,10 +36,22 @@ export default function SignInView() {
     // 2. API call
     setIsLoading(true)
     try {
-      await requestOtp(email)
-      toast.success('OTP sent to your email!')
-      localStorage.setItem('pending_email', email)
-      navigate('/verify')
+      const response = await login(email, password)
+      const { session_id, user_role } = response.data
+
+      // 3. Save all data to localStorage
+      localStorage.setItem('session_id', session_id)
+      localStorage.setItem('user_role', user_role)
+      localStorage.setItem('user_email', email)
+
+      // 4. Set the cookie for the FastAPI Admin interface
+      document.cookie = `session_id=${session_id}; path=/; samesite=lax;`
+
+      // 5. Trigger reactive update so the Navbar shows the profile icon immediately
+      refresh()
+
+      toast.success('Login successful!')
+      navigate('/')
     } catch (error: any) {
       const errorMsg = error.response?.data?.detail || 'Connection to server failed.'
       toast.error(errorMsg)
@@ -57,7 +68,7 @@ export default function SignInView() {
           <p className="text-slate-500 font-medium italic text-sm">BUET e-Council Management</p>
         </div>
 
-        <div className="relative group mb-8">
+        <div className="relative group mb-6">
           <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -76,6 +87,43 @@ export default function SignInView() {
           </label>
         </div>
 
+        <div className="relative group mb-8">
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyUp={(e) => e.key === 'Enter' && handleSignIn()}
+            type={showPassword ? 'text' : 'password'}
+            id="password"
+            placeholder=" "
+            disabled={isLoading}
+            className="block w-full px-4 py-4 pr-12 text-slate-900 bg-transparent border-2 border-slate-200 rounded-2xl appearance-none focus:outline-none focus:border-blue-500 peer transition-all disabled:bg-slate-50 disabled:cursor-not-allowed"
+          />
+          <label
+            htmlFor="password"
+            className="absolute text-slate-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-3 pointer-events-none font-bold"
+          >
+            Password
+          </label>
+          <button
+            type="button"
+            tabIndex={-1}
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            )}
+          </button>
+        </div>
+
         <button
           onClick={handleSignIn}
           disabled={isLoading}
@@ -91,10 +139,12 @@ export default function SignInView() {
               ></path>
             </svg>
           )}
-          <span>{isLoading ? 'Sending OTP...' : 'Get Access Code'}</span>
+          <span>{isLoading ? 'Signing in...' : 'Sign In'}</span>
         </button>
 
-        <p className="mt-8 text-center text-xs text-slate-400 font-medium">An OTP will be sent to your institutional email for verification.</p>
+        <p className="mt-8 text-center text-xs text-slate-400 font-medium">
+          Don't have an account? Contact an administrator to have one created for you.
+        </p>
       </div>
     </main>
   )

@@ -40,12 +40,6 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
-/** Port of the `/verify` route's `beforeEnter` guard. */
-export function RequirePendingEmail({ children }: { children: ReactNode }) {
-  if (!localStorage.getItem('pending_email')) return <Navigate to="/sign-in" replace />
-  return <>{children}</>
-}
-
 /**
  * Port of the `/admin-panel` route's `beforeEnter`, which has no component —
  * it just redirects to the FastAPI-rendered SQLAdmin app. This is a full

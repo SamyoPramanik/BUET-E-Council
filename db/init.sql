@@ -19,9 +19,7 @@ CREATE TABLE "user" (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     email VARCHAR NOT NULL UNIQUE,
     role userrole_enum NOT NULL DEFAULT 'viewer',
-    otp_secret VARCHAR,
-    last_otp_timestep INTEGER,
-    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    hashed_password VARCHAR NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -272,22 +270,3 @@ CREATE INDEX ix_resolution_chunks_entities ON resolution_chunks USING GIN (
 CREATE INDEX ix_agendum_chunks_body ON agendum_chunks USING GIN (to_tsvector('simple', body));
 
 CREATE INDEX ix_resolution_chunks_body ON resolution_chunks USING GIN (to_tsvector('simple', body));
-
--- =============================================================================
--- User Seeding
--- =============================================================================
-INSERT INTO
-    "user" (email, role, is_verified)
-VALUES (
-        'admin@gmail.com',
-        'admin',
-        TRUE
-    );
-
-INSERT INTO
-    "user" (email, role, is_verified)
-VALUES (
-        'staff@gmail.com',
-        'staff',
-        TRUE
-    );
