@@ -8,6 +8,10 @@ class ParticipantRead(BaseModel):
     id: uuid_pkg.UUID
     content: str
     email: Optional[str] = None
+    department_id: Optional[uuid_pkg.UUID] = None
+    department: Optional[str] = None
+    faculty_id: Optional[uuid_pkg.UUID] = None
+    faculty: Optional[str] = None
 
 # For PATCH Request
 class UpdateMeetingParticipants(BaseModel):

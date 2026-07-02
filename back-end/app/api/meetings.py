@@ -30,6 +30,8 @@ from app.schemas.meetings import (
 from app.schemas.signature_cards import *
 
 from app.api.files import upload_file, delete_file
+from app.api.participants import build_org_lookup_maps, participant_to_read
+from app.schemas.participants import ParticipantRead
 
 router = APIRouter(prefix="/meetings", tags=["Meetings"])
 
@@ -238,14 +240,16 @@ def update_meeting(
 # PARTICIPANTS
 # ════════════════════════════════════════════════════════════════════════════
 
-@router.get("/{meeting_id}/participants")
+@router.get("/{meeting_id}/participants", response_model=list[ParticipantRead])
 def get_meeting_participants(
     meeting_id:   uuid_pkg.UUID,
     session:      Session = Depends(get_session),
     current_user: User    = Depends(get_current_user),
 ):
-    """Return full participant list for a meeting."""
-    return _get_meeting_or_404(meeting_id, session).members
+    """Return full participant list for a meeting, with department/faculty names joined in."""
+    meeting = _get_meeting_or_404(meeting_id, session)
+    dept_by_id, faculty_by_id = build_org_lookup_maps(session)
+    return [participant_to_read(p, dept_by_id, faculty_by_id) for p in meeting.members]
 
 
 @router.patch("/{meeting_id}/participants", response_model=Meeting)

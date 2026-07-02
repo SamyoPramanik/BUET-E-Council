@@ -4,6 +4,7 @@ import api from '../utils/api'
 import { isValidEmail } from '../utils/validators'
 import { confirmDestructive } from '../utils/alerts'
 import { useAuth } from '../auth/AuthContext'
+import BackButton from '../components/BackButton'
 import type { CreateUserRequest, UserAccount } from '../types/api'
 import type { UserRole } from '../auth/types'
 
@@ -95,6 +96,7 @@ export default function ManageStaffView() {
       <div className="h-6 mb-4"></div>
 
       <div className="mx-auto w-full lg:w-3/5 px-4 sm:px-6">
+        <BackButton className="mb-3" />
         <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-gray-100 p-8 mb-8">
           <h2 className="text-xl font-black text-slate-800 mb-1">Add Account</h2>
           <p className="text-sm text-slate-500 font-medium mb-6">
