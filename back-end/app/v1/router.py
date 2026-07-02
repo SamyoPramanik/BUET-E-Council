@@ -5,7 +5,7 @@ V1 API specification into a singular cohesive layout.
 """
 
 from fastapi import APIRouter
-from app.v1.routers import users , auth, meetings, agenda, files
+from app.v1.routers import users , auth, meetings, agenda, files, faculty, department
 
 v1_router = APIRouter()
 
@@ -15,3 +15,5 @@ v1_router.include_router(auth.router)
 v1_router.include_router(meetings.router)
 v1_router.include_router(agenda.router)
 v1_router.include_router(files.router)
+v1_router.include_router(faculty.router)
+v1_router.include_router(department.router)
