@@ -7,7 +7,7 @@ from uuid import UUID
 
 from ..database import get_session
 from ..models import User, UserSession
-from ..schemas.users import UserCreate, UserRead
+from ..schemas.users import UserCreate, UserRead, UserRoleUpdate
 from ..dependencies import get_current_user, get_admin_user
 from ..utils import hash_password, generate_random_password, send_credentials_email
 
@@ -75,6 +75,40 @@ async def create_user(
         logger.error(f"Failed to email credentials to {new_user.email}: {email_err}")
 
     return new_user
+
+
+@router.patch(
+    "/{user_id}/role",
+    response_model=UserRead,
+    status_code=status.HTTP_200_OK,
+)
+async def update_user_role(
+    user_id: UUID,
+    payload: UserRoleUpdate,
+    admin_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_session),
+):
+    """
+    Admin-only: change a user's role (viewer/staff/admin) at any time.
+
+    New members are created as viewers by default; admins use this endpoint
+    to promote them to staff or admin later.
+    """
+    if user_id == admin_user.id and payload.role != admin_user.role:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot change your own role.",
+        )
+
+    target = db.get(User, user_id)
+    if not target:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+
+    target.role = payload.role
+    db.add(target)
+    db.commit()
+    db.refresh(target)
+    return target
 
 
 @router.delete(

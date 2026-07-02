@@ -75,6 +75,7 @@ CREATE TABLE participantcard (
     content VARCHAR NOT NULL,
     role memberrole_enum NOT NULL DEFAULT 'Regular',
     email VARCHAR,
+    is_external BOOLEAN NOT NULL DEFAULT FALSE,
     department_id UUID NOT NULL,
     FOREIGN KEY (department_id) REFERENCES department (id) ON DELETE CASCADE
 );

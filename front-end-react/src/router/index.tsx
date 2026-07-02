@@ -4,6 +4,7 @@ import SignInView from '../views/SignInView'
 import UnauthorizedView from '../views/UnauthorizedView'
 import ProfileView from '../views/ProfileView'
 import ManageStaffView from '../views/ManageStaffView'
+import ManageDirectoryView from '../views/ManageDirectoryView'
 import MeetingsView from '../views/MeetingsView'
 import ParticipantsView from '../views/ParticipantsView'
 import MeetingDetailsView from '../views/MeetingDetailsView'
@@ -73,6 +74,16 @@ export const router = createBrowserRouter([
           <RequireAuth>
             <RequireAdmin>
               <ManageStaffView />
+            </RequireAdmin>
+          </RequireAuth>
+        ),
+      },
+      {
+        path: 'directory',
+        element: (
+          <RequireAuth>
+            <RequireAdmin>
+              <ManageDirectoryView />
             </RequireAdmin>
           </RequireAuth>
         ),

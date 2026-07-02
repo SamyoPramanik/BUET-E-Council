@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Users as UsersIcon, GraduationCap } from 'lucide-react'
+import { Users as UsersIcon, GraduationCap, LibraryBig } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import './Sidebar.css'
 
 export default function Sidebar() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, userRole } = useAuth()
   const [isExpanded, setIsExpanded] = useState(false)
 
   if (!isAuthenticated) return null
@@ -37,6 +37,15 @@ export default function Sidebar() {
           </div>
           <span className="nav-label">Participants</span>
         </NavLink>
+
+        {userRole === 'admin' && (
+          <NavLink to="/directory" className={({ isActive }) => ['nav-item', isActive ? 'is-active' : ''].join(' ')}>
+            <div className="icon-wrapper">
+              <LibraryBig size={20} />
+            </div>
+            <span className="nav-text">Directory</span>
+          </NavLink>
+        )}
       </nav>
     </aside>
   )

@@ -123,6 +123,7 @@ class ParticipantCard(SQLModel, table=True):
         ),
     )
     email:         Optional[str]            = Field(default=None, nullable=True)
+    is_external:   bool                     = Field(default=False, nullable=False)
     department_id: uuid_pkg.UUID            = Field(foreign_key="department.id", index=True)
     department:    Optional["Department"]   = Relationship(back_populates="participants")
     meetings:      List["Meeting"]          = Relationship(

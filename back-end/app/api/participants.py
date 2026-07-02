@@ -1,9 +1,15 @@
+import uuid as uuid_pkg
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import Session, select, col
+from sqlmodel import Session, select
+
 from app.database import get_session
-from app.models import Meeting, ParticipantCard, UserRole, Department, Faculty
-from app.dependencies import get_current_user # Assuming you have an auth helper
-from ..schemas.participants import *
+from app.dependencies import get_admin_user
+from app.models import ParticipantCard, User, Department, Faculty
+from ..schemas.participants import (
+    ParticipantRead, ParticipantCreate, ParticipantUpdate,
+)
 
 router = APIRouter()
 
@@ -26,7 +32,9 @@ def participant_to_read(
     return ParticipantRead(
         id=card.id,
         content=card.content,
+        role=card.role,
         email=card.email,
+        is_external=card.is_external,
         department_id=dept.id if dept else None,
         department=(dept.name_english or dept.name_bangla) if dept else None,
         faculty_id=faculty.id if faculty else None,
@@ -34,7 +42,17 @@ def participant_to_read(
     )
 
 
-# --- 1st API: Get all Participant Cards ---
+def _get_participant_or_404(participant_id: uuid_pkg.UUID, session: Session) -> ParticipantCard:
+    card = session.get(ParticipantCard, participant_id)
+    if not card:
+        raise HTTPException(status_code=404, detail="Participant not found.")
+    return card
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# GET /participants — open to any signed-in user
+# ════════════════════════════════════════════════════════════════════════════
+
 @router.get("/participants", response_model=List[ParticipantRead])
 def get_all_participants(session: Session = Depends(get_session)):
     """
@@ -50,66 +68,70 @@ def get_all_participants(session: Session = Depends(get_session)):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-# --- 2nd API: Modify Meeting Participant List ---
-@router.patch("/meetings/{meeting_id}/participants")
-def update_meeting_members(
-    meeting_id: uuid_pkg.UUID,
-    data: UpdateMeetingParticipants,
+# ════════════════════════════════════════════════════════════════════════════
+# PARTICIPANT DIRECTORY — admin-only writes.
+#
+# This is the master list of people (professors, deans, external guests, …)
+# that meetings draw their attendee list from. Only admins may add, edit, or
+# delete entries here; staff can only attach/detach *existing* entries to a
+# specific meeting via PATCH /meetings/{id}/participants (also admin-only —
+# see api/meetings.py — staff cannot change who is on a meeting's list).
+# ════════════════════════════════════════════════════════════════════════════
+
+@router.post("/participants", response_model=ParticipantRead, status_code=status.HTTP_201_CREATED)
+def create_participant(
+    data: ParticipantCreate,
     session: Session = Depends(get_session),
-    current_user = Depends(get_current_user) # Logic to check user role
+    admin_user: User = Depends(get_admin_user),
 ):
-    """
-    Updates the many-to-many relationship for a meeting.
-    - 200: Success
-    - 403: Forbidden (If user is a Viewer)
-    - 404: Meeting or Participant not found
-    """
-    # 1. Authorization Check
-    if current_user.role == UserRole.viewer:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
-            detail="Viewers are not allowed to modify meeting participants"
-        )
+    """Admin-only: add a new participant card to the directory."""
+    if not session.get(Department, data.department_id):
+        raise HTTPException(status_code=404, detail="Department not found.")
 
-    # 2. Fetch the Meeting
-    meeting = session.get(Meeting, meeting_id)
-    if not meeting:
-        raise HTTPException(status_code=404, detail="Meeting not found")
-
-    # 3. Fetch all requested Participant Cards
-    statement = select(ParticipantCard).where(col(ParticipantCard.id).in_(data.participant_ids))
-    new_members = session.exec(statement).all()
-
-    # Check if all IDs provided actually exist
-    if len(new_members) != len(data.participant_ids):
-        raise HTTPException(status_code=404, detail="One or more Participant IDs are invalid")
-
-    # 4. Update the Relationship
-    # SQLModel handles the Link table automatically when you replace the list
-    meeting.members = list(new_members)
-    
-    session.add(meeting)
+    card = ParticipantCard(**data.model_dump())
+    session.add(card)
     session.commit()
-    session.refresh(meeting)
+    session.refresh(card)
 
-    return {"message": "Participant list updated successfully", "count": len(meeting.members)}
+    dept_by_id, faculty_by_id = build_org_lookup_maps(session)
+    return participant_to_read(card, dept_by_id, faculty_by_id)
 
-@router.get("/meetings/{meeting_id}/participants", response_model=List[ParticipantRead])
-def get_meeting_participants(
-    meeting_id: uuid_pkg.UUID, 
-    session: Session = Depends(get_session)
+
+@router.patch("/participants/{participant_id}", response_model=ParticipantRead)
+def update_participant(
+    participant_id: uuid_pkg.UUID,
+    data: ParticipantUpdate,
+    session: Session = Depends(get_session),
+    admin_user: User = Depends(get_admin_user),
 ):
-    """
-    Retrieves all ParticipantCards associated with a specific meeting.
-    - 200: Success
-    - 404: Meeting not found
-    """
-    # 1. Fetch the meeting first to verify it exists
-    meeting = session.get(Meeting, meeting_id)
-    
-    if not meeting:
-        raise HTTPException(status_code=404, detail="Meeting not found")
+    """Admin-only: edit a participant card in the directory."""
+    card = _get_participant_or_404(participant_id, session)
 
-    # 2. Return the members list 
-    # SQLModel automatically handles the Many-to-Many fetch through the relationship
-    return meeting.members
+    updates = data.model_dump(exclude_unset=True)
+    if not updates:
+        raise HTTPException(status_code=400, detail="At least one field must be provided.")
+
+    if "department_id" in updates and not session.get(Department, updates["department_id"]):
+        raise HTTPException(status_code=404, detail="Department not found.")
+
+    for k, v in updates.items():
+        setattr(card, k, v)
+
+    session.add(card)
+    session.commit()
+    session.refresh(card)
+
+    dept_by_id, faculty_by_id = build_org_lookup_maps(session)
+    return participant_to_read(card, dept_by_id, faculty_by_id)
+
+
+@router.delete("/participants/{participant_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_participant(
+    participant_id: uuid_pkg.UUID,
+    session: Session = Depends(get_session),
+    admin_user: User = Depends(get_admin_user),
+):
+    """Admin-only: remove a participant card from the directory (also drops it from any meetings)."""
+    card = _get_participant_or_404(participant_id, session)
+    session.delete(card)
+    session.commit()

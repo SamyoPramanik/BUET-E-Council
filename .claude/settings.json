@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose *)",
+      "Bash(curl -s -H 'Session-ID: a0116a86-e042-4126-b913-ce2e072c8a45' http://localhost:9001/api/faculties)",
+      "Bash(python3 -m json.tool)"
+    ]
+  }
+}

@@ -21,7 +21,7 @@ from fastapi.responses import FileResponse
 from sqlmodel import Session, desc, func, select, col
 
 from app.database import engine, get_session
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_admin_user
 from app.models import Agendum, Meeting, Resolution, User, UserRole, UploadedFile, SignatureCard, MeetingSignatureLink
 from app.schemas.meetings import (
     MeetingPDFResponse, MeetingSummary,
@@ -257,13 +257,17 @@ def update_meeting_participants(
     meeting_id:      uuid_pkg.UUID,
     participant_ids: list[uuid_pkg.UUID],
     session:         Session = Depends(get_session),
-    current_user:    User    = Depends(get_current_user),
+    current_user:    User    = Depends(get_admin_user),
 ):
     """
     Replace the full participant list (pass complete desired list).
-    200 — updated | 403 — viewer | 404 — meeting not found
+
+    Admin-only: staff can edit meeting content (title, agenda, resolutions,
+    signature cards, PDFs) but cannot add or remove who is on the meeting's
+    participant list — that mirrors the admin-only participant directory.
+
+    200 — updated | 403 — not an admin | 404 — meeting not found
     """
-    _require_modifier(current_user)
     from app.models import ParticipantCard
 
     meeting = _get_meeting_or_404(meeting_id, session)

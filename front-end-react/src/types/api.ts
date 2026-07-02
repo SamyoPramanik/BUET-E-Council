@@ -44,14 +44,35 @@ export interface CreateUserRequest {
 
 // ── Participants (back-end/app/schemas/participants.py) ──────────────────
 
+/** Mirrors back-end/app/models.py's MemberRole enum exactly. */
+export type MemberRole = 'Dean' | 'Head' | 'Regular'
+
 export interface ParticipantRead {
   id: string
   content: string
+  role: MemberRole
   email: string | null
+  is_external: boolean
   department_id: string | null
   department: string | null
   faculty_id: string | null
   faculty: string | null
+}
+
+export interface ParticipantCreate {
+  content: string
+  role: MemberRole
+  email?: string | null
+  is_external: boolean
+  department_id: string
+}
+
+export interface ParticipantUpdate {
+  content?: string
+  role?: MemberRole
+  email?: string | null
+  is_external?: boolean
+  department_id?: string
 }
 
 // ── Organisation (back-end/app/schemas/organisation.py) ──────────────────
@@ -60,12 +81,46 @@ export interface FacultyRead {
   id: string
   name: string
   order: number
+  name_bangla: string
+  name_english: string | null
+}
+
+export interface FacultyCreate {
+  order: number
+  name_bangla: string
+  name_english?: string | null
+}
+
+export interface FacultyUpdate {
+  order?: number
+  name_bangla?: string
+  name_english?: string | null
 }
 
 export interface DepartmentRead {
   id: string
   name: string
   faculty_id: string
+  name_bangla: string
+  name_english: string | null
+  alias_bangla: string
+  alias_english: string | null
+}
+
+export interface DepartmentCreate {
+  name_bangla: string
+  name_english?: string | null
+  alias_bangla: string
+  alias_english?: string | null
+  faculty_id: string
+}
+
+export interface DepartmentUpdate {
+  name_bangla?: string
+  name_english?: string | null
+  alias_bangla?: string
+  alias_english?: string | null
+  faculty_id?: string
 }
 
 // ── Meetings (back-end/app/schemas/meetings.py + models.py's Meeting) ────
