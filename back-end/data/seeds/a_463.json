@@ -1,0 +1,899 @@
+{
+  "meeting_serial": 463,
+  "meeting_title": "একাডেমিক কাউন্সিলের ৪৬৩-তম জরুরী সভা",
+  "description": "গত ২২/০৪/২০২১ তারিখ একাডেমিক কাউন্সিলের ৪৬৩-তম জরুরী সভা বিকাল ২:০০ ঘটিকায় ভার্চুয়াল প্ল্যাটফর্মে Zoom Software এর মাধ্যমে মাননীয় উপাচার্য ও একাডেমিক কাউন্সিলের সভাপতি অধ্যাপক ডঃ সত্য প্রসাদ মজুমদার-এর সভাপতিত্বে অনুষ্ঠিত হয়। সভাপতি মহোদয় সভায় উপস্থিত সকল সদস্যদেরকে স্বাগত জানান এবং তাঁহাদের সকলের সহযোগিতা কামনা করিয়া মহান সৃষ্টিকর্তার নামে সভার কার্যক্রম শুরু করেন।",
+  "conclusion": "পরিশেষে, সভাপতি মহোদয় সভায় উপস্থিত সকলকে ধন্যবাদ জানিয়ে সভার কার্য সমাপ্তি ঘোষণা করেন। অনুমোদিত।",
+  "president": "অধ্যাপক ডঃ সত্য প্রসাদ মজুমদার, উপাচার্য, বাংলাদেশ প্রকৌশল বিশ্ববিদ্যালয়, ঢাকা।",
+  "date": "2021-04-22T14:00:00+06:00",
+  "is_academic": true,
+  "members": [
+    {
+      "content": "অধ্যাপক ডঃ আব্দুল জব্বার খাঁন, উপ-উপাচার্য, বাংলাদেশ প্রকৌশল বিশ্ববিদ্যালয়, ঢাকা।",
+      "department_alias": "উপ-উপাচার্য",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ আবু খায়ের মোহাম্মদ আলী, ডীন, যন্ত্রকৌশল অনুষদ",
+      "department_alias": "ডীন",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ আবু সিদ্দিক, ডীন, পুরকৌশল অনুষদ",
+      "department_alias": "ডীন",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ খন্দকার সাব্বির আহমেদ, ডীন, স্থাপত্য ও পরিকল্পনা অনুষদ",
+      "department_alias": "ডীন",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ প্রাণ কানাই সাহা, ডীন, তড়িৎ ও ইলেকট্রনিক কৌশল অনুষদ",
+      "department_alias": "ডীন",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মমিনুর রহমান, প্রধান, কেমিকৌশল বিভাগ",
+      "department_alias": "ChE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মাহবুব হাসান, প্রধান, বস্তু ও ধাতব কৌশল বিভাগ",
+      "department_alias": "MME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ শাখাওয়াত হোসেন ফিরোজ, প্রধান, রসায়ন বিভাগ",
+      "department_alias": "CHEM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ খন্দকার ফরিদ উদ্দিন আহমেদ, প্রধান, গণিত বিভাগ",
+      "department_alias": "MATH",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ রাফি উদ্দিন, প্রধান, পদার্থ বিজ্ঞান বিভাগ",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ দেলোয়ার হোসেন, প্রধান, পুরকৌশল বিভাগ",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ শেখ রিয়াজ আহমেদ, প্রধান, যন্ত্রকৌশল বিভাগ",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ নায়েব মোঃ গোলাম জাকারিয়া, প্রধান, নৌযান ও নৌযন্ত্র কৌশল বিভাগ",
+      "department_alias": "NAME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ নিখিল রঞ্জন ধর, প্রধান, আই.পি.ই বিভাগ",
+      "department_alias": "IPE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ কামরুল হাসান, প্রধান, ত.ই কৌশল বিভাগ",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ এ.কে.এম. আশিকুর রহমান, প্রধান, সি.এস.ই বিভাগ",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মোঃ আবদুর রউফ, সহযোগী অধ্যাপক, প্রধান, মানবিক বিভাগ",
+      "department_alias": "HUM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মুঃ মোসলেহ্ উদ্দীন হাসান, প্রধান, ইউ.আর.পি বিভাগ",
+      "department_alias": "URP",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আয়নাল হক, প্রধান, বায়োমেডিক্যাল ইঞ্জিনিয়ারিং বিভাগ",
+      "department_alias": "BME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ সৈয়দা সুলতানা রাজিয়া",
+      "department_alias": "ChE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আলী আহম্মদ শওকত চৌধুরী",
+      "department_alias": "ChE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মোঃ শাহিনুর ইসলাম, সহযোগী অধ্যাপক",
+      "department_alias": "ChE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ শোয়েব আহমেদ, সহযোগী অধ্যাপক",
+      "department_alias": "ChE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ কাজী বায়জীদ কবীর, সহযোগী অধ্যাপক",
+      "department_alias": "ChE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মোঃ তানভীর সওগাত, সহযোগী অধ্যাপক",
+      "department_alias": "ChE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ নাহিদ সানজিদা, সহযোগী অধ্যাপক",
+      "department_alias": "ChE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ ওয়াম্মদ মহিদুস সামাদ খান, সহযোগী অধ্যাপক",
+      "department_alias": "ChE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মোঃ ইকবাল হোসেন, সহযোগী অধ্যাপক",
+      "department_alias": "ChE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মোঃ ইয়াছির আরাফাত খান, সহযোগী অধ্যাপক",
+      "department_alias": "ChE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আমিনুল ইসলাম",
+      "department_alias": "MME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ মনিরুজ্জামান",
+      "department_alias": "MME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ আহম্মেদ শরীফ",
+      "department_alias": "MME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ কাজী মোহাম্মদ সরওয়ার্দী",
+      "department_alias": "MME",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ হোসাইন মোহাম্মদ মামুন আল রাশেদ, সহযোগী অধ্যাপক",
+      "department_alias": "MME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আব্দুল মতিন",
+      "department_alias": "GCE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আব্দুর রশিদ",
+      "department_alias": "CHEM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ আল-নকীব চৌধুরী",
+      "department_alias": "CHEM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ শাকিলা রহমান",
+      "department_alias": "CHEM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ নজরুল ইসলাম",
+      "department_alias": "CHEM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আবদুল হাকিম খান",
+      "department_alias": "MATH",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ মনিরুল আলম সরকার",
+      "department_alias": "MATH",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আবদুল আলীম",
+      "department_alias": "MATH",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ মোস্তাফিজুর রহমান",
+      "department_alias": "MATH",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ নাজমা পারভীন",
+      "department_alias": "MATH",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ ফরহাদ উদ্দিন",
+      "department_alias": "MATH",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ সালমা পারভীন",
+      "department_alias": "MATH",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ রেহেনা নাসরীন",
+      "department_alias": "MATH",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ জীবন পোদ্দার",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ ফিরোজ আলম খান",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ এ. কে. এম আক্তার হোসেন",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ মোশারফ হোসেন",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ ফরহাদ মিনা",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ নাসরীন আক্তার",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ আব্দুল বাছিত",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মোঃ আবু সায়েম কাড়াল, সহযোগী অধ্যাপক",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মোহাম্মদ জিলুর রহমান, সহযোগী অধ্যাপক",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মোহাম্মদ সমীর উল্লাহ, সহযোগী অধ্যাপক",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মুহাম্মদ রকিবুল ইসলাম, সহযোগী অধ্যাপক",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মোহাম্মদ খোরশেদ আলম, সহযোগী অধ্যাপক",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মেহনজি শারমিন, সহযোগী অধ্যাপক",
+      "department_alias": "PHY",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ এ.বি.এম. বদরুজ্জামান",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আবদুল জলিল",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ ইশতিয়াক আহমেদ",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ হাসিব মোহাম্মদ আহসান",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ সারওয়ার জাহান মোঃ ইয়াজদানী",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ বশির আহমেদ",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মেহেদী আহমেদ আনসারী",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ সামছুল হক",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ রওশন মমতাজ",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ তাহসিন রেজা হোসেন",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ রাকিব আহসান",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ আ.ফ.ম. সাইফুল আমিন",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ সৈয়দ ইশতিয়াক আহমদ",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ মিজানুর রহমান",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ শরিফুল ইসলাম",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মাহবুবা বেগম",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ আল আমিন সিদ্দিক",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ তানভীর আহমেদ",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ সোহেল রানা, সহযোগী অধ্যাপক",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ শামীম আহমেদ, সহযোগী অধ্যাপক",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ নজরুল ইসলাম, সহযোগী অধ্যাপক",
+      "department_alias": "CE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আবদুল মতিন",
+      "department_alias": "WRE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আতাউর রহমান",
+      "department_alias": "WRE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ মোস্তফা আলী",
+      "department_alias": "WRE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ এ.টি.এম. হাসান জোবায়ের",
+      "department_alias": "WRE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মাকসুদ আল নূর",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ এহসান",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ আলী",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ আশিকুর রহমান",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আফতাব আলী",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মুঃ মাহবুবুর রাজ্জাক",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ আরিফ হাসান মামুন",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আবদুস সালাম আকন্দ",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ মামুন",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ অলোক কুমার মজুমদার",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ এ. বি. এম তৌফিক হাসান",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মুহাম্মদ নাসিম হাসান",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ এ. কে. এম. মঞ্জুর মোর্শেদ",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ সুমন সাহা, সহযোগী অধ্যাপক",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মোঃ আশিকুর রহমান, সহযোগী অধ্যাপক",
+      "department_alias": "ME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ গৌতম কুমার সাহা",
+      "department_alias": "NAME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মীর তারেক আলী",
+      "department_alias": "NAME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ শহীদুল ইসলাম",
+      "department_alias": "NAME",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ জোবায়ের ইবনে আউয়াল, সহযোগী অধ্যাপক",
+      "department_alias": "NAME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ এ কে এম মাসুদ",
+      "department_alias": "IPE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ সুলতানা পারভীন",
+      "department_alias": "IPE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ এ. কে. এম. কায়েস বিন জামান",
+      "department_alias": "IPE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ ফেরদৌসী সারেয়ার",
+      "department_alias": "IPE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ সৈয়দা মিথুন আলী",
+      "department_alias": "IPE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ শুভ ঘোষ, সহযোগী অধ্যাপক",
+      "department_alias": "IPE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ কাজী দ্বীন মোহাম্মদ খসরু",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ শফিকুল ইসলাম",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ এ.বি.এম. হারুন-উর-রশিদ",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ শরীফ মোহাম্মদ মমিনুজ্জামান",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ জাহাঙ্গীর আলম",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ শাহ আলম",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ জিয়াউর রহমান খান",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ ইমামুল হাসান ভূঁঞা",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ শেখ আনোয়ারুল ফাত্তাহ",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ এস. এম. মাহবুবুর রহমান",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মুহাম্মদ আনিসুজ্জামান তালুকদার",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ সেলিয়া শাহনাজ",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ আরিফুল হক",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ আব্দুল হাসিব চৌধুরী",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ ফারসীম মান্নান মোহাম্মদী",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ ফয়সাল",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ সামিয়া সাবরিনা",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ ফোরকান উদ্দিন",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ ফরহাদ হোসেন",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ লুৎফা আক্তার",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ কাউছার আলম",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ শামীম রেজা বসুনিয়া",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "জনাব ইয়াসির আরাফাত, সহযোগী অধ্যাপক",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ অপ্রতীম রায়, সহযোগী অধ্যাপক",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মাহবুব আলম, সহযোগী অধ্যাপক",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ নাহিদ আল মাসুদ, সহযোগী অধ্যাপক",
+      "department_alias": "EEE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মুহাম্মদ মাসরুর আলী",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ সাইদুর রহমান",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ মনিরুল ইসলাম",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ মোস্তফা আকবর",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ আবু ছায়ীদ মোঃ লতিফুল হক",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ সোহেল রহমান",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক মোহাম্মদ ইউনুস আলী",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মাহমুদা নাজনীন",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ মনিরুল ইসলাম",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ তানজিমা হাসেম",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ সোহরাব হোসেন",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ এ বি এম আলিম আল ইসলাম",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ অনিন্দ্য ইকবাল, সহযোগী অধ্যাপক",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ রিফাত শাহরিয়ার, সহযোগী অধ্যাপক",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মুহাম্মদ আবদুল্লাহ আদনান, সহযোগী অধ্যাপক",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মোহাম্মদ সাইফুর রহমান, সহযোগী অধ্যাপক",
+      "department_alias": "CSE",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মুহাম্মদ তারিক আরাফাত, সহযোগী অধ্যাপক, বায়োমেডিক্যাল ইঞ্জিনিয়ারিং বিভাগ",
+      "department_alias": "BME",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ ফরিদা নিলুফার",
+      "department_alias": "ARCH",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ আশিকুর রহমান জোয়ার্দ্দার",
+      "department_alias": "ARCH",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ নাজিমা খান, সহযোগী অধ্যাপক",
+      "department_alias": "ARCH",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ আসমা বেগম",
+      "department_alias": "HUM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ শাহনাজ পারভীন",
+      "department_alias": "HUM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক মোঃ মর্শিবুল আলম",
+      "department_alias": "HUM",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ মিজানুর রহমান, সহযোগী অধ্যাপক",
+      "department_alias": "HUM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোহাম্মদ শাকিল আকতার",
+      "department_alias": "URP",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ ইশরাত ইসলাম",
+      "department_alias": "URP",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ আফসানা হক",
+      "department_alias": "URP",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ আসিফ-উজ্জামান খান, সহযোগী অধ্যাপক",
+      "department_alias": "URP",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ রেজাউর রহমান",
+      "department_alias": "IWFM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ মুনসুর রহমান",
+      "department_alias": "IWFM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ জি.এম. তারেকুল ইসলাম",
+      "department_alias": "IWFM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ সুজিত কুমার বালা",
+      "department_alias": "IWFM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মুহাম্মদ শাহজাহান মন্ডল",
+      "department_alias": "IWFM",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ সাইফুল ইসলাম",
+      "department_alias": "IICT",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ লিয়াকত আলী",
+      "department_alias": "IICT",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক ডঃ মোঃ রুবাইয়াত হোসেন মন্ডল",
+      "department_alias": "IICT",
+      "is_external": false
+    },
+    {
+      "content": "ডঃ হোসেন আসিফুল মোস্তফা, সহযোগী অধ্যাপক",
+      "department_alias": "IICT",
+      "is_external": false
+    },
+    {
+      "content": "পরিচালক, উপদেশ, প্রসারণ ও গবেষণা কার্যক্রম পরিদপ্তর",
+      "department_alias": "অন্যান্য",
+      "is_external": false
+    },
+    {
+      "content": "পরিচালক, ছাত্রকল্যাণ পরিদপ্তর",
+      "department_alias": "অন্যান্য",
+      "is_external": false
+    },
+    {
+      "content": "অধ্যাপক মোঃ আবুল বাশার, প্রাক্তন মহাপরিচালক, কারিগরি শিক্ষা অধিদপ্তর, ঢাকা। ফ্ল্যাট-এ/২, হাউজ নং-৪১, রোড নং-১২৩, গুলশান-১, ঢাকা-১২১২",
+      "department_alias": "অন্যান্য",
+      "is_external": true
+    }
+  ],
+  "agenda": [
+    {
+      "no": 1,
+      "content": "প্রস্তাব নং এ ২১০৬০১ : করোনা ভাইরাস (কোভিড-১৯) সংক্রমণের বিদ্যমান পরিস্থিতিতে গণপ্রজাতন্ত্রী বাংলাদেশ সরকার কর্তৃক সার্বিক কার্যাবলি/চলাচলে বিধি-নিষেধ আরোপের সময়সীমা ২৮/০৪/২০২১ তারিখ পর্যন্ত বর্ধিত হওয়ায় স্নাতক ও স্নাতকোত্তর শ্রেণীর ক্লাস ও পরীক্ষাসহ একাডেমিক ক্যালেন্ডার বিষয়ে আলোচনা এবং সিদ্ধান্ত গ্রহণ।",
+      "resolution_contents": "সিদ্ধান্ত : স্নাতক ও স্নাতকোত্তর শ্রেণীর ক্লাস ও পরীক্ষাসহ একাডেমিক ক্যালেন্ডার বিষয়ে নিম্নবর্ণিত সিদ্ধান্ত গ্রহণ করা হয়ঃ\n\n(ক) করোনা ভাইরাস (কোভিড-১৯) সংক্রমণের বিদ্যমান পরিস্থিতিতে গণপ্রজাতন্ত্রী বাংলাদেশ সরকার কর্তৃক সার্বিক কার্যাবলি/চলাচলে বিধি-নিষেধ আরোপের সময়সীমা ২৮/০৪/২০২১ তারিখ পর্যন্ত বর্ধিত হওয়ায় আগামী ২৮/০৪/২০২১ তারিখ পর্যন্ত অনলাইসহ সকল ধরণের শিক্ষা কার্যক্রম স্থগিত করা হলো।\n\n(খ) স্নাতক শ্রেণীর জানুয়ারি ২০২১ টার্মের Online একাডেমিক ক্যালেন্ডার নিম্নোক্তভাবে পুনঃসংশোধন করা হলো।\nকোর্স রেজিস্ট্রেশন : ২৭ ফেব্রুয়ারি - ১৯ মার্চ, ২০২১\nবিলম্ব ফিসহ কোর্স রেজিস্ট্রেশন : ২০ - ২৯ মার্চ, ২০২১\nকোর্স এডজাস্টমেন্ট (Add or Drop) : সর্বশেষ তারিখ : ১১ এপ্রিল, ২০২১\n\nক্লাস, বিরতি, ছুটি ও পরীক্ষা — সময়সীমা — স্থায়িত্ব:\nক্লাস : ২৭-০২-২০২১ হইতে ০৯-০৪-২০২১ — ৬ সপ্তাহ\nবিরতি : ১০-০৪-২০২১ হইতে ১৬-০৪-২০২১ — ১ সপ্তাহ\nক্লাস স্থগিত : ১৭-০৪-২০২১ হইতে ২৮-০৪-২০২১ — ১ সপ্তাহ ৫ দিন\nক্লাস : ২৯-০৪-২০২১ হইতে ০৭-০৫-২০২১ — ১ সপ্তাহ ২ দিন\nঈদ-উল-ফিতরের ছুটি : ০৮-০৫-২০২১ হইতে ২১-০৫-২০২১ — ২ সপ্তাহ\nক্লাস : ২২-০৫-২০২১ হইতে ১৬-০৭-২০২১ — ৮ সপ্তাহ\nপরীক্ষা প্রস্তুতি ও ঈদ-উল-আযহার ছুটি : ১৭-০৭-২০২১ হইতে ১৩-০৮-২০২১ — ৪ সপ্তাহ\nপরীক্ষা : ১৪-০৮-২০২১ হইতে ০৯-০৯-২০২১ — ৩ সপ্তাহ ৫ দিন\n\nপরবর্তী টার্মের ক্লাস শুরুর সম্ভাব্য তারিখ : ০৯ অক্টোবর ২০২১\n\n(গ) জানুয়ারি ২০২০ টার্মের সাপ্লিমেন্টারী পরীক্ষা অনলাইনে ২৫-০৫-২০২১ তারিখ হতে ৩০-০৫-২০২১ তারিখ অনুষ্ঠিত হবে।\n\n(ঘ) স্নাতকোত্তর শ্রেণীর এপ্রিল ২০২০ সেমিস্টারের ক্লাস ১৭-০৪-২০২১ হতে ২৮-০৪-২০২১ তারিখ স্থগিত হওয়ায় ক্লাসসমূহ ২৯-০৪-২০২১ তারিখ হতে ০৮-০৫-২০২১ তারিখ অনুষ্ঠিত হবে। স্নাতকোত্তর শ্রেণীর এপ্রিল ২০২০ সেমিস্টারের পরীক্ষার সময়কাল ১৭-০৫-২০২১ তারিখ হতে ৩০-০৫-২০২১ তারিখ পুনঃনির্ধারণ করা হলো।\n\n(ঙ) স্নাতকোত্তর শ্রেণীর অক্টোবর ২০২০ সেমিস্টার ড্রপ করে এপ্রিল ২০২১ সেমিস্টার চালু করা হবে। স্নাতকোত্তর শ্রেণীর এপ্রিল ২০২১ সেমিস্টারে ভর্তি পরীক্ষা এবং একাডেমিক ক্যালেন্ডার বিষয়ে ডীনস্ কমিটি সুপারিশ করবেন যা উপাচার্য মহোদয় চাইলে একাডেমিক কাউন্সিলে অবগতি করা সাপেক্ষে অনুমোদন করবেন।\n\n(চ) করোনা ভাইরাস (কোভিড-১৯) সংক্রমণের বিদ্যমান পরিস্থিতিতে গণপ্রজাতন্ত্রী বাংলাদেশ সরকার সার্বিক কার্যাবলি/চলাচলে বিধি-নিষেধ আরোপের সময়সীমা বর্ধিত করলে অনলাইসহ সকল ধরণের শিক্ষা কার্যক্রম স্থগিত থাকবে। সেক্ষেত্রে স্নাতক ও স্নাতকোত্তর শ্রেণীর ক্লাস ও পরীক্ষাসহ একাডেমিক ক্যালেন্ডার বিষয়ে ডীনস্ কমিটি সুপারিশ করবেন যা উপাচার্য মহোদয় চাইলে একাডেমিক কাউন্সিলে অবগতি করা সাপেক্ষে অনুমোদন করবেন।",
+      "is_suppli": false
+    }
+  ]
+}

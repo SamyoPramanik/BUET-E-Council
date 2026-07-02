@@ -163,7 +163,10 @@ INSERT INTO department (id, name_bangla, name_english, faculty_id, alias) VALUES
     ('d69ba612-4709-4de9-9e82-03a7bce0f3c8', 'রসায়ন বিভাগ', 'Dept of Chemistry', 'c83e5af0-823c-43f8-926d-5b3a522e850f', 'CHEM'),
     ('a91ab99e-4d7d-43cf-b7ab-2969e681c98a', 'গণিত বিভাগ', 'Dept of Mathematics', 'c83e5af0-823c-43f8-926d-5b3a522e850f', 'MATH'),
     ('b5a5e2bc-47da-47a1-9a25-b93f9184570b', 'পদার্থ বিজ্ঞান বিভাগ', 'Dept of Physics', 'c83e5af0-823c-43f8-926d-5b3a522e850f', 'PHY'),
-    ('f661656e-00e0-406b-814b-e18061c015fa', 'স্থাপত্য বিভাগ', 'Dept of Architecture', 'f5ca902d-afa4-4af3-be65-77ba7e79af6c', 'ARCH');
+    ('f661656e-00e0-406b-814b-e18061c015fa', 'স্থাপত্য বিভাগ', 'Dept of Architecture', 'f5ca902d-afa4-4af3-be65-77ba7e79af6c', 'ARCH'),
+    ('7139d892-cb34-4e78-bc41-bf9bf4fe5df1', 'উপ-উপাচার্য কার্যালয়', 'Office of the Pro-Vice Chancellor', NULL, 'উপ-উপাচার্য'),
+    ('b93d3958-f542-4217-a128-4e8c187bc954', 'ডীন কার্যালয়', 'Office of the Dean', NULL, 'ডীন'),
+    ('e6c5184b-01a4-474d-94c3-6be7a01cdfa2', 'অন্যান্য আনুষঙ্গিক শাখা', 'Other Miscellaneous Sections', NULL, 'অন্যান্য');
 
 -- =============================================================================
 -- SEMANTIC SEARCH (CHUNKS)
