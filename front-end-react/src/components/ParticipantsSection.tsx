@@ -1,32 +1,31 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { toast } from 'react-toastify'
 import api from '../utils/api'
 import ParticipantCard from './ParticipantCard'
 import MemberSelectRow from './MemberSelectRow'
 import { confirmDestructive, confirmAction } from '../utils/alerts'
-import { Search, Users, Crown, Trash2, Save, Mail, X, Plus, ChevronDown, GripVertical, UserPlus, ArrowLeftRight, ListChecks } from 'lucide-react'
-import type { ParticipantRead } from '../types/api'
+import { Search, Users, Crown, Trash2, Save, Mail, X, Plus, ChevronDown, GripVertical, UserPlus, ArrowLeftRight, ListChecks, ArrowUpDown } from 'lucide-react'
+import type { ParticipantRead, FacultyRead, DepartmentRead } from '../types/api'
 import './ParticipantsSection.css'
 
 // ── drag-and-drop (native HTML5, no extra lib needed) ──────────────────────
 // We keep it simple: dragover reordering via index tracking.
 //
-// ── Faculty / Department / Designation / Prev-meeting-count / Role filters ──
-// Intentionally NOT implemented. `GET /participants` (ParticipantRead) only
-// returns { id, content, email } — no department, faculty, role, or
-// designation field, and there is no /faculties or /departments listing
-// endpoint anywhere in the backend to populate those dropdowns from. The
-// DB models (ParticipantCard.department_id -> Department.faculty_id) do
-// encode this relationship, but it isn't exposed via any API this frontend
-// can call without backend changes, which are out of scope here. Search
-// below matches name (content) + email — the two fields that really exist.
+// ── Faculty / Department filters + sort ─────────────────────────────────────
+// `GET /participants` and `GET /meetings/{id}/participants` (ParticipantRead)
+// now join in department/faculty names via back-end/app/api/participants.py's
+// participant_to_read(), and `/faculties` + `/departments` list endpoints
+// (back-end/app/api/organisation.py) populate the filter dropdowns below.
+// Search matches name (content), email, department, and faculty text.
 
 interface ParticipantsSectionProps {
   meetingId: string
   currentPresidentId?: string | null
   currentMembers?: ParticipantRead[]
   allParticipants: ParticipantRead[]
+  faculties?: FacultyRead[]
+  departments?: DepartmentRead[]
   onPresidentUpdated: (id: string | null) => void
   onMembersUpdated: (ids: string[]) => void
 }
@@ -36,6 +35,8 @@ export default function ParticipantsSection({
   currentPresidentId = null,
   currentMembers = [],
   allParticipants,
+  faculties = [],
+  departments = [],
   onPresidentUpdated,
   onMembersUpdated,
 }: ParticipantsSectionProps) {
@@ -49,7 +50,12 @@ export default function ParticipantsSection({
   const filteredForPresident = (() => {
     const term = searchPresident.toLowerCase().trim()
     if (!term) return allParticipants
-    return allParticipants.filter((p) => p.content.toLowerCase().includes(term))
+    return allParticipants.filter(
+      (p) =>
+        p.content.toLowerCase().includes(term) ||
+        (p.department ?? '').toLowerCase().includes(term) ||
+        (p.faculty ?? '').toLowerCase().includes(term),
+    )
   })()
 
   const selectedPresidentCard = allParticipants.find((p) => p.id === selectedPresidentId) || null
@@ -92,10 +98,18 @@ export default function ParticipantsSection({
   const [showModal, setShowModal] = useState(false)
   const [modalSearch, setModalSearch] = useState('')
   const [modalDraftIds, setModalDraftIds] = useState<string[]>([]) // working copy inside modal
+  const [modalFacultyId, setModalFacultyId] = useState('')
+  const [modalDepartmentId, setModalDepartmentId] = useState('')
+  const [sortByFaculty, setSortByFaculty] = useState(false)
+
+  // Departments narrow to the selected faculty (dependent dropdown).
+  const departmentOptions = modalFacultyId ? departments.filter((d) => d.faculty_id === modalFacultyId) : departments
 
   const openModal = () => {
     setModalDraftIds([...selectedMemberIds])
     setModalSearch('')
+    setModalFacultyId('')
+    setModalDepartmentId('')
     setShowModal(true)
   }
 
@@ -108,14 +122,36 @@ export default function ParticipantsSection({
     setShowModal(false)
   }
 
-  // The available list shows everyone matching the search term — selected
-  // participants stay visible (highlighted) rather than disappearing, so
-  // multi-selecting across several searches doesn't lose your place.
-  const modalAvailable = (() => {
+  // The available list shows everyone matching the search term + filters —
+  // selected participants stay visible (highlighted) rather than
+  // disappearing, so multi-selecting across several searches doesn't lose
+  // your place.
+  const modalAvailable = useMemo(() => {
     const term = modalSearch.toLowerCase().trim()
-    if (!term) return allParticipants
-    return allParticipants.filter((p) => p.content.toLowerCase().includes(term) || (p.email ?? '').toLowerCase().includes(term))
-  })()
+    let list = allParticipants.filter((p) => {
+      if (modalFacultyId && p.faculty_id !== modalFacultyId) return false
+      if (modalDepartmentId && p.department_id !== modalDepartmentId) return false
+      if (!term) return true
+      return (
+        p.content.toLowerCase().includes(term) ||
+        (p.email ?? '').toLowerCase().includes(term) ||
+        (p.department ?? '').toLowerCase().includes(term) ||
+        (p.faculty ?? '').toLowerCase().includes(term)
+      )
+    })
+    if (sortByFaculty) {
+      list = [...list].sort((a, b) => {
+        const fa = a.faculty ?? ''
+        const fb = b.faculty ?? ''
+        if (fa !== fb) return fa.localeCompare(fb)
+        const da = a.department ?? ''
+        const db = b.department ?? ''
+        if (da !== db) return da.localeCompare(db)
+        return a.content.localeCompare(b.content)
+      })
+    }
+    return list
+  }, [allParticipants, modalSearch, modalFacultyId, modalDepartmentId, sortByFaculty])
 
   const modalSelected = modalDraftIds
     .map((id) => allParticipants.find((p) => p.id === id))
@@ -469,8 +505,8 @@ export default function ParticipantsSection({
                       <input
                         value={modalSearch}
                         onChange={(e) => setModalSearch(e.target.value)}
-                        placeholder="Search by name or email…"
-                        aria-label="Search available members by name or email"
+                        placeholder="Search by name, email, department, or faculty…"
+                        aria-label="Search available members by name, email, department, or faculty"
                         className="w-full pl-9 pr-8 py-2 text-sm bg-white
                                    border border-slate-200 rounded-xl outline-none
                                    focus:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-200 transition-colors"
@@ -485,6 +521,55 @@ export default function ParticipantsSection({
                           <X size={14} />
                         </button>
                       )}
+                    </div>
+
+                    {/* faculty / department filters + sort */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <select
+                        value={modalFacultyId}
+                        onChange={(e) => {
+                          setModalFacultyId(e.target.value)
+                          setModalDepartmentId('') // reset dependent dropdown
+                        }}
+                        aria-label="Filter by faculty"
+                        className="flex-1 min-w-[120px] px-2.5 py-1.5 text-xs font-medium bg-white
+                                   border border-slate-200 rounded-lg outline-none text-slate-600
+                                   focus:border-blue-400 transition-colors"
+                      >
+                        <option value="">All Faculties</option>
+                        {faculties.map((f) => (
+                          <option key={f.id} value={f.id}>
+                            {f.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      <select
+                        value={modalDepartmentId}
+                        onChange={(e) => setModalDepartmentId(e.target.value)}
+                        aria-label="Filter by department"
+                        className="flex-1 min-w-[120px] px-2.5 py-1.5 text-xs font-medium bg-white
+                                   border border-slate-200 rounded-lg outline-none text-slate-600
+                                   focus:border-blue-400 transition-colors"
+                      >
+                        <option value="">All Departments</option>
+                        {departmentOptions.map((d) => (
+                          <option key={d.id} value={d.id}>
+                            {d.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      <button
+                        onClick={() => setSortByFaculty((v) => !v)}
+                        aria-pressed={sortByFaculty}
+                        className={[
+                          'flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all',
+                          sortByFaculty ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-300',
+                        ].join(' ')}
+                      >
+                        <ArrowUpDown size={12} /> Sort by Faculty
+                      </button>
                     </div>
 
                     <div className="flex items-center gap-2">

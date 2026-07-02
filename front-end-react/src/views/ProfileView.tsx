@@ -4,6 +4,7 @@ import { toast } from 'react-toastify'
 import { useAuth } from '../auth/AuthContext'
 import api from '../utils/api'
 import { confirmDestructive } from '../utils/alerts'
+import BackButton from '../components/BackButton'
 import type { MeResponse, SessionInfo } from '../types/api'
 
 function formatDate(dateStr: string): string {
@@ -95,6 +96,7 @@ export default function ProfileView() {
       <div className="h-6 mb-4"></div>
 
       <div className="mx-auto w-full lg:w-3/5 px-4 sm:px-6">
+        <BackButton className="mb-3" />
         <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 sm:p-8 mb-8 flex items-center gap-6">
           <div className="h-20 w-20 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-xl shadow-blue-200 uppercase">
             {userInitials}

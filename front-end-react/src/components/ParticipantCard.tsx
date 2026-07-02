@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Mail, Check } from 'lucide-react'
+import { Mail, Check, Building2 } from 'lucide-react'
 import type { ParticipantRead } from '../types/api'
 
 interface ParticipantCardProps {
@@ -63,6 +63,12 @@ export default function ParticipantCard({
           <p className="mt-1 text-slate-500 text-xs leading-relaxed break-words">
             {splitContent.rest}
           </p>
+        )}
+        {participant.department && (
+          <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+            <Building2 size={11} className="shrink-0" />
+            <span className="truncate max-w-[160px]">{participant.department}</span>
+          </div>
         )}
       </div>
 

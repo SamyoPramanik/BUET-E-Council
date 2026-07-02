@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Users, Crown, BookOpen, Search, RefreshCw, Mail, Building2, GraduationCap, AlertCircle } from 'lucide-react'
+import BackButton from '../components/BackButton'
 import './ParticipantsView.css'
 
 // ── API endpoints ─────────────────────────────────────────────────────────────
@@ -159,6 +160,7 @@ export default function ParticipantsView() {
     <div className="participants-page">
       {/* ══ PAGE HEADER ══════════════════════════════════════════════════════ */}
       <div className="page-header">
+        <BackButton className="mb-2" />
         <div className="page-header-inner">
           <div className="page-title-block">
             <GraduationCap size={28} className="page-title-icon" />

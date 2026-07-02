@@ -48,6 +48,24 @@ export interface ParticipantRead {
   id: string
   content: string
   email: string | null
+  department_id: string | null
+  department: string | null
+  faculty_id: string | null
+  faculty: string | null
+}
+
+// ── Organisation (back-end/app/schemas/organisation.py) ──────────────────
+
+export interface FacultyRead {
+  id: string
+  name: string
+  order: number
+}
+
+export interface DepartmentRead {
+  id: string
+  name: string
+  faculty_id: string
 }
 
 // ── Meetings (back-end/app/schemas/meetings.py + models.py's Meeting) ────

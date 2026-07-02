@@ -30,13 +30,14 @@ import api from '../utils/api'
 import { useAuth } from '../auth/AuthContext'
 import { confirmDestructive } from '../utils/alerts'
 
+import BackButton from '../components/BackButton'
 import ParticipantsSection from '../components/ParticipantsSection'
 import ParticipantCard from '../components/ParticipantCard'
 import AgendaBox from '../components/AgendaBox'
 import InsertStrip from '../components/InsertStrip'
 import SignatureCardsSection from '../components/SignatureCardsSection'
 import PrintableMeeting from '../components/PrintableMeeting'
-import type { Meeting, ParticipantRead, AgendumResponse, SignatureCardResponse } from '../types/api'
+import type { Meeting, ParticipantRead, AgendumResponse, SignatureCardResponse, FacultyRead, DepartmentRead } from '../types/api'
 import './MeetingDetailsView.css'
 
 const OFFSET = 10000
@@ -68,6 +69,8 @@ export default function MeetingDetailsView() {
   const [meetingMembers, setMeetingMembers] = useState<ParticipantRead[]>([])
   const [agendas, setAgendas] = useState<AgendumResponse[]>([])
   const [signatureCards, setSignatureCards] = useState<SignatureCardResponse[]>([])
+  const [faculties, setFaculties] = useState<FacultyRead[]>([])
+  const [departments, setDepartments] = useState<DepartmentRead[]>([])
 
   const currentPresident = meeting?.president_card_id ? allParticipants.find((p) => p.id === meeting.president_card_id) ?? null : null
 
@@ -106,18 +109,22 @@ export default function MeetingDetailsView() {
   const fetchAllData = useCallback(async () => {
     setLoading(true)
     try {
-      const [mRes, pRes, mbRes, agRes, sigRes] = await Promise.all([
+      const [mRes, pRes, mbRes, agRes, sigRes, facRes, depRes] = await Promise.all([
         api.get<Meeting>(`/meetings/${meetingId}`),
         api.get<ParticipantRead[]>('/participants'),
         api.get<ParticipantRead[]>(`/meetings/${meetingId}/participants`),
         api.get<AgendumResponse[]>(`/agendas/?meeting_id=${meetingId}`),
         api.get<SignatureCardResponse[]>(`/meetings/${meetingId}/signature-cards`),
+        api.get<FacultyRead[]>('/faculties'),
+        api.get<DepartmentRead[]>('/departments'),
       ])
       setMeeting(mRes.data)
       setAllParticipants(pRes.data || [])
       setMeetingMembers(mbRes.data || [])
       setAgendas(agRes.data || [])
       setSignatureCards(sigRes.data || [])
+      setFaculties(facRes.data || [])
+      setDepartments(depRes.data || [])
     } catch (e) {
       console.error(e)
       toast.error('Could not load meeting data.')
@@ -487,6 +494,7 @@ export default function MeetingDetailsView() {
     <div className="screen-only h-screen flex flex-col bg-slate-50 overflow-hidden">
       {/* ══ HEADER ══════════════════════════════════════════════════════════ */}
       <header className="h-16 shrink-0 bg-white border-b border-slate-200 shadow-sm px-4 sm:px-6 flex items-center gap-3 z-50">
+        <BackButton to="/meetings" label="Back to Meetings" className="shrink-0 -ml-1" />
         <button onClick={() => setShowSections((v) => !v)} className="lg:hidden p-2.5 -ml-1 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors shrink-0">
           {showSections ? <X size={22} /> : <Menu size={22} />}
         </button>
@@ -845,6 +853,8 @@ export default function MeetingDetailsView() {
                     currentPresidentId={meeting.president_card_id}
                     currentMembers={meetingMembers}
                     allParticipants={allParticipants}
+                    faculties={faculties}
+                    departments={departments}
                     onPresidentUpdated={handlePresidentUpdate}
                     onMembersUpdated={handleMembersUpdate}
                   />
