@@ -225,6 +225,12 @@ export default function ParticipantsSection({
     await saveMembers([])
   }
 
+  const removeMember = async (id: string) => {
+    const next = selectedMemberIds.filter((mid) => mid !== id)
+    setSelectedMemberIds(next)
+    await saveMembers(next)
+  }
+
   const sendEmailPopup = () => {
     toast.info(`Email composer coming soon… (${selectedMemberIds.length} members)`)
   }
@@ -417,7 +423,7 @@ export default function ParticipantsSection({
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {orderedMembers.map((m) => (
-                <ParticipantCard key={m.id} participant={m} />
+                <ParticipantCard key={m.id} participant={m} onRemove={() => removeMember(m.id)} />
               ))}
             </div>
           )}
@@ -472,25 +478,14 @@ export default function ParticipantsSection({
                         onDragStart={() => onDragStart(idx)}
                         onDragOver={(e) => onDragOver(e, idx)}
                         onDragEnd={onDragEnd}
-                        className={['group relative flex items-center gap-2 cursor-grab active:cursor-grabbing', dragFromIndex === idx ? 'opacity-50' : ''].join(' ')}
+                        className={['flex items-center gap-2 cursor-grab active:cursor-grabbing', dragFromIndex === idx ? 'opacity-50' : ''].join(' ')}
                       >
                         {/* grip handle */}
-                        <GripVertical size={16} className="shrink-0 text-slate-300 group-hover:text-slate-500 transition-colors" />
+                        <GripVertical size={16} className="shrink-0 text-slate-300 hover:text-slate-500 transition-colors" />
                         {/* card */}
                         <div className="flex-1 min-w-0">
-                          <ParticipantCard participant={m} />
+                          <ParticipantCard participant={m} onRemove={() => modalToggleRemove(m.id)} />
                         </div>
-                        {/* remove button — appears on hover */}
-                        <button
-                          onClick={() => modalToggleRemove(m.id)}
-                          className="absolute top-2 right-2 p-1.5 rounded-lg
-                                     bg-red-50 text-red-500 hover:bg-red-100
-                                     opacity-0 group-hover:opacity-100
-                                     transition-all duration-150 z-10"
-                          title="Remove"
-                        >
-                          <X size={14} />
-                        </button>
                       </div>
                     ))}
                   </div>

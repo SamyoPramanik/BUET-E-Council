@@ -1,17 +1,20 @@
 import { useMemo, useState } from 'react'
-import { Mail, Check, Building2 } from 'lucide-react'
+import { Mail, Check, Building2, X } from 'lucide-react'
 import type { ParticipantRead } from '../types/api'
 
 interface ParticipantCardProps {
   participant: ParticipantRead
   selectable?: boolean
   selected?: boolean
+  /** When provided, renders an always-visible remove (X) button top-left. */
+  onRemove?: () => void
 }
 
 export default function ParticipantCard({
   participant,
   selectable = false,
   selected = false,
+  onRemove,
 }: ParticipantCardProps) {
   // ── email copy with brief check-mark feedback ─────────────────────────────
   const [copied, setCopied] = useState(false)
@@ -54,6 +57,23 @@ export default function ParticipantCard({
         selectable ? 'cursor-pointer' : '',
       ].join(' ')}
     >
+      {/* ── remove button (top-left) ────────────────────────────────────── */}
+      {onRemove && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onRemove()
+          }}
+          title="Remove"
+          aria-label="Remove participant"
+          className="absolute -top-2 -left-2 z-10 flex items-center justify-center
+                     h-6 w-6 rounded-full bg-red-500 text-white shadow-sm
+                     hover:bg-red-600 transition-colors"
+        >
+          <X size={13} strokeWidth={2.5} />
+        </button>
+      )}
+
       {/* ── top section: name + rest ────────────────────────────────────── */}
       <div className="pr-2">
         <p className="font-semibold text-slate-900 text-sm leading-snug break-words">
